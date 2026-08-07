@@ -24,7 +24,6 @@ export default function PosterCard({
   progresso,
   destaque = false,
   preencherLargura = false,
-  bloqueado = false,
   compacto = false,
 }: {
   metafora: Metafora;
@@ -44,7 +43,7 @@ export default function PosterCard({
       : "w-32 sm:w-40 md:w-44";
 
   const emBreve = metafora.status === "em_breve";
-  const exibirBloqueio = emBreve || bloqueado;
+  const exibirBloqueioVisual = emBreve;
 
   return (
     <button
@@ -78,21 +77,21 @@ export default function PosterCard({
 
         <div
           className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-            exibirBloqueio
+            exibirBloqueioVisual
               ? "bg-black/60 opacity-100 backdrop-blur-[1.5px]"
               : "bg-black/10 opacity-0 group-hover:opacity-100 group-hover:bg-black/30"
           }`}
         >
           <span
             className={`flex ${compacto ? "h-10 w-10" : "h-11 w-11"} items-center justify-center rounded-full shadow-lg ${
-              exibirBloqueio ? "bg-black/65 text-zinc-100 ring-1 ring-white/15" : "bg-gold text-black"
+              exibirBloqueioVisual ? "bg-black/65 text-zinc-100 ring-1 ring-white/15" : "bg-gold text-black"
             }`}
           >
-            {exibirBloqueio ? <LockIcon className="h-5 w-5" /> : <PlayIcon />}
+            {exibirBloqueioVisual ? <LockIcon className="h-5 w-5" /> : <PlayIcon />}
           </span>
         </div>
 
-        {typeof progresso === "number" && !exibirBloqueio && (
+        {typeof progresso === "number" && !exibirBloqueioVisual && (
           <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20">
             <div
               className="h-full bg-gold"
@@ -105,8 +104,8 @@ export default function PosterCard({
         <p className={`${compacto ? "text-xs" : "text-sm"} truncate font-medium text-zinc-100`}>
           {metafora.titulo}
         </p>
-        {exibirBloqueio && (
-          <p className="text-xs text-zinc-500">🔒 Bloqueado</p>
+        {exibirBloqueioVisual && (
+          <p className="text-xs text-zinc-500">Em breve</p>
         )}
       </div>
     </button>
