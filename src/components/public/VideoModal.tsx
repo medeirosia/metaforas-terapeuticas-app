@@ -66,7 +66,7 @@ export default function VideoModal({
       onClick={onClose}
     >
       <div
-        className="glass-card gold-glow animate-reveal relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[32px] bg-[#0a0a0a]/80 sm:flex-row"
+        className="glass-card gold-glow animate-reveal relative flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-y-auto rounded-[32px] bg-[#0a0a0a]/80 sm:flex-row sm:overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex w-full shrink-0 flex-col bg-black sm:w-[300px]">
@@ -110,7 +110,7 @@ export default function VideoModal({
           </div>
 
           {exibirCtaPreview && (
-            <div className="sticky bottom-0 border-t border-emerald-400/30 bg-[#07100c]/95 p-4 text-center shadow-[0_-18px_48px_rgba(16,185,129,0.18)] backdrop-blur-md">
+            <div className="border-t border-emerald-400/30 bg-[#07100c]/95 p-4 text-center shadow-[0_-18px_48px_rgba(16,185,129,0.18)] backdrop-blur-md">
               <p className="text-sm font-black leading-snug text-zinc-50">
                 Gostou desta metáfora? Libere o acervo completo com +147 vídeos.
               </p>
@@ -133,13 +133,14 @@ export default function VideoModal({
         </div>
 
         <div
-          className={`absolute inset-x-0 bottom-0 z-30 flex flex-1 flex-col gap-3 overflow-y-auto rounded-t-[28px] border-t border-white/10 bg-[#0a0a0a]/95 font-sans font-light shadow-[0_-18px_54px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-[max-height] duration-300 sm:relative sm:inset-auto sm:z-auto sm:max-h-none sm:rounded-none sm:border-l sm:border-t-0 sm:p-6 sm:shadow-none ${
-            detalhesAbertos ? "max-h-[72vh] p-5" : "max-h-24 p-4"
+          className={`relative z-10 flex flex-1 flex-col gap-3 overflow-y-auto border-t border-white/10 bg-[#0a0a0a]/95 font-sans font-light backdrop-blur-xl transition-[max-height] duration-300 sm:inset-auto sm:z-auto sm:max-h-none sm:rounded-none sm:border-l sm:border-t-0 sm:p-6 sm:shadow-none ${
+            detalhesAbertos ? "max-h-[60vh] p-5" : "max-h-28 p-4"
           }`}
         >
           <button
             type="button"
             onClick={() => setDetalhesAbertos((aberto) => !aberto)}
+            aria-expanded={detalhesAbertos}
             className="flex flex-col items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-gold-light sm:hidden"
           >
             <span className="h-1.5 w-12 rounded-full bg-white/25" />
