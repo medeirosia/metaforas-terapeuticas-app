@@ -70,7 +70,13 @@ export default function VideoModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex w-full shrink-0 flex-col bg-black sm:w-[300px]">
-          <div className="relative aspect-[9/16] w-full bg-black">
+          <div
+            className={`relative w-full bg-black ${
+              exibirCtaPreview
+                ? "h-[calc(92dvh-2rem)] sm:h-auto sm:aspect-[9/16]"
+                : "aspect-[9/16]"
+            }`}
+          >
             <button
               type="button"
               onClick={onClose}
@@ -102,34 +108,33 @@ export default function VideoModal({
                 />
               </div>
             )}
-            {videoFinalizado && exibirCtaPreview && (
-              <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-emerald-400/30 bg-black/75 p-4 text-center text-sm font-semibold text-emerald-200 backdrop-blur-md">
-                Esta é 1 de 147+ metáforas disponíveis no acervo completo.
+            {exibirCtaPreview && (
+              <div className="absolute inset-x-3 bottom-3 z-20 rounded-3xl border border-emerald-400/35 bg-[#07100c]/92 p-3 text-center shadow-[0_-18px_48px_rgba(16,185,129,0.18),0_0_34px_rgba(52,211,153,0.2)] backdrop-blur-md sm:inset-x-4 sm:bottom-4 sm:p-4">
+                {videoFinalizado && (
+                  <p className="mb-2 text-[11px] font-semibold text-emerald-200">
+                    Esta é 1 de 147+ metáforas disponíveis no acervo completo.
+                  </p>
+                )}
+                <p className="text-sm font-black leading-snug text-zinc-50">
+                  Gostou desta metáfora? Libere o acervo completo com +147 vídeos.
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-zinc-300">
+                  Por apenas{" "}
+                  <strong className="text-emerald-300">12x de R$ 6,83</strong>{" "}
+                  ou <strong className="text-gold-light">R$ 67,00 à vista</strong>
+                </p>
+                <button
+                  type="button"
+                  onClick={onUnlock}
+                  className="relative mt-2.5 inline-flex w-full items-center justify-center overflow-hidden rounded-full bg-emerald-400 px-4 py-3 text-xs font-black uppercase tracking-wide text-black shadow-[0_0_34px_rgba(52,211,153,0.45)] transition-transform hover:scale-[1.02]"
+                >
+                  <span className="absolute inset-0 animate-pulse bg-emerald-300/40" />
+                  <span className="shine-sweep absolute -left-14 top-0 h-full w-12 -skew-x-12 bg-white/50 shadow-[0_0_24px_rgba(255,255,255,0.7)]" />
+                  <span className="relative">🚀 Desbloquear todas as metáforas</span>
+                </button>
               </div>
             )}
           </div>
-
-          {exibirCtaPreview && (
-            <div className="border-t border-emerald-400/30 bg-[#07100c]/95 p-4 text-center shadow-[0_-18px_48px_rgba(16,185,129,0.18)] backdrop-blur-md">
-              <p className="text-sm font-black leading-snug text-zinc-50">
-                Gostou desta metáfora? Libere o acervo completo com +147 vídeos.
-              </p>
-              <p className="mt-2 text-xs leading-relaxed text-zinc-300">
-                Por apenas{" "}
-                <strong className="text-emerald-300">12x de R$ 6,83</strong>{" "}
-                ou <strong className="text-gold-light">R$ 67,00 à vista</strong>
-              </p>
-              <button
-                type="button"
-                onClick={onUnlock}
-                className="relative mt-3 inline-flex w-full items-center justify-center overflow-hidden rounded-full bg-emerald-400 px-4 py-3 text-xs font-black uppercase tracking-wide text-black shadow-[0_0_34px_rgba(52,211,153,0.45)] transition-transform hover:scale-[1.02]"
-              >
-                <span className="absolute inset-0 animate-pulse bg-emerald-300/40" />
-                <span className="shine-sweep absolute -left-14 top-0 h-full w-12 -skew-x-12 bg-white/50 shadow-[0_0_24px_rgba(255,255,255,0.7)]" />
-                <span className="relative">🚀 Desbloquear todas as metáforas</span>
-              </button>
-            </div>
-          )}
         </div>
 
         <div
