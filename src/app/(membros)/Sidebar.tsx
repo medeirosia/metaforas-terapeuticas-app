@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOutMembro } from "@/app/(membros)/actions";
 
 const ITENS = [
@@ -17,9 +18,22 @@ export default function Sidebar({
   isDemo: boolean;
   userEmail: string | null;
 }) {
+  const router = useRouter();
   const pathname = usePathname();
+  const [optimisticPathname, setOptimisticPathname] = useState<string | null>(null);
   const itens = ITENS;
-  const itemAtual = itens.find((item) => item.href === pathname);
+  const pathnameAtual = optimisticPathname ?? pathname;
+  const itemAtual = itens.find((item) => item.href === pathnameAtual);
+
+  useEffect(() => {
+    itens.forEach((item) => router.prefetch(item.href));
+  }, [itens, router]);
+
+  function navegarImediato(href: string) {
+    if (href === pathname) return;
+    setOptimisticPathname(href);
+    router.push(href);
+  }
 
   return (
     <>
@@ -39,10 +53,15 @@ export default function Sidebar({
       </header>
 
       <nav
-        className="fixed inset-x-3 bottom-3 z-40 grid gap-1 rounded-[24px] border border-white/10 bg-[#0b0b10]/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-3 bottom-3 z-[70] grid gap-1 rounded-[24px] border border-white/10 bg-[#0b0b10]/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden"
         style={{ gridTemplateColumns: `repeat(${itens.length}, minmax(0, 1fr))` }}
       >
-        <NavLinks itens={itens} pathname={pathname} variant="mobile" />
+        <NavLinks
+          itens={itens}
+          pathname={pathnameAtual}
+          variant="mobile"
+          onNavigate={navegarImediato}
+        />
       </nav>
 
       <aside className="glass-card hidden w-full flex-col gap-4 border-x-0 border-t-0 p-4 lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:gap-6 lg:border-y-0 lg:border-l-0 lg:p-6">
@@ -92,10 +111,12 @@ function NavLinks({
   itens,
   pathname,
   variant,
+  onNavigate,
 }: {
   itens: typeof ITENS;
   pathname: string;
   variant: "desktop" | "mobile";
+  onNavigate?: (href: string) => void;
 }) {
   return (
     <>
@@ -108,7 +129,17 @@ function NavLinks({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[11px] font-semibold transition-colors ${
+              prefetch
+              onPointerDown={(event) => {
+                if (event.pointerType === "mouse") return;
+                event.preventDefault();
+                onNavigate?.(item.href);
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                onNavigate?.(item.href);
+              }}
+              className={`flex min-h-14 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[11px] font-semibold transition-colors ${
                 ativo
                   ? "bg-emerald-400/15 text-emerald-300"
                   : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
