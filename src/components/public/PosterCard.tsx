@@ -24,6 +24,7 @@ export default function PosterCard({
   progresso,
   destaque = false,
   preencherLargura = false,
+  bloqueado = false,
   compacto = false,
 }: {
   metafora: Metafora;
@@ -43,7 +44,7 @@ export default function PosterCard({
       : "w-32 sm:w-40 md:w-44";
 
   const emBreve = metafora.status === "em_breve";
-  const exibirBloqueioVisual = emBreve;
+  const exibirBloqueioVisual = emBreve && !bloqueado;
 
   return (
     <button
