@@ -91,13 +91,15 @@ export default async function InicioPage() {
       <section className="relative overflow-hidden rounded-[28px] border border-emerald-400/25 bg-[#0c0f0d] p-5 shadow-2xl sm:rounded-[36px] sm:p-10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.26),transparent_40%),radial-gradient(circle_at_100%_70%,rgba(167,139,113,0.22),transparent_32%)]" />
         <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-          <span className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-300 sm:text-xs">
-            Pagamento Único • Sem Assinatura • Acesso Vitalício
-          </span>
-
-          <h1 className="text-3xl font-black leading-tight text-zinc-50 sm:text-5xl">
-            Biblioteca de Metáforas Terapêuticas em Vídeo
-          </h1>
+         <p className="max-w-2xl text-2xl font-black leading-tight text-zinc-50 sm:text-4xl">
+  Biblioteca de{" "}
+  <span className="text-emerald-300 drop-shadow-[0_0_22px_rgba(52,211,153,0.28)]">
+    Metáforas
+  </span>{" "}
+  <em className="font-serif italic text-gold-light">
+    Terapêuticas em Vídeo
+  </em>
+</p>
           
           <h1 className="text-3xl font-black leading-tight text-zinc-50 sm:text-5xl">
             Transforme conceitos complexos em &apos;estalos&apos; de consciência
@@ -219,9 +221,9 @@ export default async function InicioPage() {
         <div className="relative overflow-hidden rounded-[28px] border border-emerald-400/30 bg-[#06130d] p-5 text-center shadow-[0_0_80px_rgba(16,185,129,0.16)] sm:p-7">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(52,211,153,0.28),transparent_45%)]" />
           <div className="relative">
-            <p className="text-sm font-bold text-zinc-400">
-              De <span className="line-through">R$ 197</span> por apenas:
-            </p>
+            <span className="mt-4 inline-flex rounded-full border border-emerald-400/35 bg-emerald-400/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-emerald-300">
+  Pagamento único • Sem assinatura • Acesso vitalício
+</span>
             <p className="mt-4 text-lg font-bold text-emerald-200">
               12x de
             </p>
