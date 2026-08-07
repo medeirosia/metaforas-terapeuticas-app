@@ -91,20 +91,22 @@ export default async function InicioPage() {
       <section className="relative overflow-hidden rounded-[28px] border border-emerald-400/25 bg-[#0c0f0d] p-5 shadow-2xl sm:rounded-[36px] sm:p-10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.26),transparent_40%),radial-gradient(circle_at_100%_70%,rgba(167,139,113,0.22),transparent_32%)]" />
         <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-         <p className="max-w-2xl text-2xl font-black leading-tight text-zinc-50 sm:text-4xl">
-  Biblioteca de{" "}
-  <span className="text-emerald-300 drop-shadow-[0_0_22px_rgba(52,211,153,0.28)]">
-    Metáforas
-  </span>{" "}
-  <em className="font-serif italic text-gold-light">
-    Terapêuticas em Vídeo
-  </em>
-</p>
-          
-          <h1 className="text-3xl font-black leading-tight text-zinc-50 sm:text-5xl">
-            Transforme conceitos complexos em &apos;estalos&apos; de consciência
-            instantâneos.
-          </h1>
+        <div className="flex flex-col items-center gap-1.5">
+  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-gold-light/90 sm:text-xs">
+    Biblioteca de
+  </p>
+  <p className="text-[1.7rem] font-black leading-tight text-emerald-300 drop-shadow-[0_0_22px_rgba(52,211,153,0.22)] sm:text-5xl">
+    Metáforas Terapêuticas
+  </p>
+  <p className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-400 sm:text-sm">
+    em vídeo
+  </p>
+</div>
+
+<h1 className="max-w-2xl text-2xl font-black leading-[1.18] text-zinc-50 sm:text-5xl sm:leading-tight">
+  Transforme conceitos complexos em &apos;estalos&apos; de consciência
+  instantâneos.
+</h1>
           <VideoLoop videos={videosPreview} compacto />
           <p className="text-base font-bold leading-relaxed text-zinc-100 sm:text-xl">
             Uma biblioteca inteira de vídeos que curam.
