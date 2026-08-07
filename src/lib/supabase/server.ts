@@ -1,5 +1,5 @@
-import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -18,8 +18,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // chamado a partir de um Server Component — ignorável pois o
-            // proxy.ts já cuida de renovar a sessão.
+            // Chamado em Server Component sem escrita de cookies.
           }
         },
       },

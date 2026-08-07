@@ -59,12 +59,55 @@ body {
   }
 }
 
+@keyframes shine {
+  0% {
+    transform: translateX(0) skewX(-12deg);
+  }
+  42%,
+  100% {
+    transform: translateX(520px) skewX(-12deg);
+  }
+}
+
+@keyframes video-loop {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes theorists-loop {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .animate-reveal {
   animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.video-marquee {
+  animation: video-loop 34s linear infinite;
+}
+
+.theorists-marquee {
+  animation: theorists-loop 26s linear infinite;
+}
+
+.shine-sweep {
+  animation: shine 2.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-reveal {
+  .animate-reveal,
+  .video-marquee,
+  .theorists-marquee,
+  .shine-sweep {
     animation: none;
   }
 }

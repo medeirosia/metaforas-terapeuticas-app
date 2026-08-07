@@ -9,6 +9,7 @@ import type { CategoriaComMetaforas, Metafora } from "@/lib/metaforas";
 
 const CHAVE_LOCALSTORAGE = "metaforas-continuar-assistindo";
 const EVENTO_ATUALIZACAO = "metaforas-progresso-atualizado";
+const SLUG_METAFORA_DEMO = "guarda-chuva-aberto";
 
 type ProgressoSalvo = Record<string, { progresso: number; atualizadoEm: number }>;
 
@@ -29,6 +30,14 @@ function getServerSnapshotProgressos() {
   return "{}";
 }
 
+function isMetaforaLiberadaDemo(metafora: Metafora) {
+  return (
+    metafora.status === "liberado" &&
+    (metafora.slug === SLUG_METAFORA_DEMO ||
+      metafora.titulo.toLowerCase() === "guarda-chuva aberto")
+  );
+}
+
 export default function NetflixExplorer({
   categorias,
   isDemo,
@@ -39,6 +48,7 @@ export default function NetflixExplorer({
   const router = useRouter();
   const [busca, setBusca] = useState("");
   const [selecionada, setSelecionada] = useState<Metafora | null>(null);
+  const [bloqueada, setBloqueada] = useState<Metafora | null>(null);
 
   const progressosRaw = useSyncExternalStore(
     subscribeProgressos,
@@ -129,7 +139,11 @@ export default function NetflixExplorer({
 
   function handleSelect(metafora: Metafora) {
     if (isDemo) {
-      router.push("/pagamento");
+      if (isMetaforaLiberadaDemo(metafora)) {
+        setSelecionada(metafora);
+        return;
+      }
+      setBloqueada(metafora);
       return;
     }
     if (metafora.status === "em_breve") return;
@@ -138,15 +152,17 @@ export default function NetflixExplorer({
 
   return (
     <div>
-      <div className="sticky top-0 z-20 px-4 py-4 sm:px-6">
-        <input
-          type="search"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar por título ou dor..."
-          className="glass-card w-full max-w-xs rounded-full px-4 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-500 transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] focus:border-gold/60 focus:outline-none"
-        />
-      </div>
+      {!isDemo && (
+        <div className="sticky top-0 z-20 px-4 py-4 sm:px-6">
+          <input
+            type="search"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar por título ou dor..."
+            className="glass-card w-full max-w-xs rounded-full px-4 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-500 transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] focus:border-gold/60 focus:outline-none"
+          />
+        </div>
+      )}
 
       <main className="pb-10">
         {resultadosBusca ? (
@@ -164,9 +180,25 @@ export default function NetflixExplorer({
                   onSelect={handleSelect}
                   progresso={progressoPorSlug[metafora.slug]}
                   preencherLargura
+                  bloqueado={isDemo && !isMetaforaLiberadaDemo(metafora)}
                 />
               ))}
             </div>
+          </div>
+        ) : isDemo ? (
+          <div className="animate-reveal flex flex-col gap-5 pt-4 sm:gap-6 sm:pt-6">
+            {categorias.map((categoria) => (
+              <CategoriaRow
+                key={categoria.id}
+                titulo={categoria.nome}
+                metaforas={categoria.metaforas}
+                onSelect={handleSelect}
+                progressos={progressoPorSlug}
+                isDemo
+                compacto
+                isLiberadaDemo={isMetaforaLiberadaDemo}
+              />
+            ))}
           </div>
         ) : (
           <div className="animate-reveal flex flex-col gap-8">
@@ -177,6 +209,7 @@ export default function NetflixExplorer({
                 onSelect={handleSelect}
                 progressos={progressoPorSlug}
                 destaque
+                isDemo={isDemo}
               />
             )}
 
@@ -186,6 +219,7 @@ export default function NetflixExplorer({
                 metaforas={continuarAssistindo}
                 onSelect={handleSelect}
                 progressos={progressoPorSlug}
+                isDemo={isDemo}
               />
             )}
 
@@ -196,6 +230,7 @@ export default function NetflixExplorer({
                 metaforas={categoria.metaforas}
                 onSelect={handleSelect}
                 progressos={progressoPorSlug}
+                isDemo={isDemo}
               />
             ))}
           </div>
@@ -208,8 +243,65 @@ export default function NetflixExplorer({
           categoriaNome={categoriaPorMetaforaId.get(selecionada.id) ?? ""}
           onClose={() => setSelecionada(null)}
           onProgresso={salvarProgresso}
+          exibirCtaPreview={isDemo && isMetaforaLiberadaDemo(selecionada)}
+          onUnlock={() => router.push("/#oferta")}
         />
       )}
+
+      {bloqueada && (
+        <PaywallModal
+          titulo={bloqueada.titulo}
+          onClose={() => setBloqueada(null)}
+          onUnlock={() => router.push("/#oferta")}
+        />
+      )}
+    </div>
+  );
+}
+
+function PaywallModal({
+  titulo,
+  onClose,
+  onUnlock,
+}: {
+  titulo: string;
+  onClose: () => void;
+  onUnlock: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        className="animate-reveal w-full max-w-md rounded-[28px] border border-emerald-400/25 bg-[#0b0b10]/95 p-6 text-center shadow-[0_0_70px_rgba(16,185,129,0.18)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400/15 text-2xl">
+          🔒
+        </span>
+        <h2 className="mt-5 text-2xl font-black text-zinc-50">
+          Conteúdo Exclusivo da Biblioteca Vitalícia
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+          <strong className="text-emerald-300">{titulo}</strong> faz parte do
+          acervo completo de 147+ vídeos em HD.
+        </p>
+        <button
+          type="button"
+          onClick={onUnlock}
+          className="mt-6 w-full rounded-full bg-emerald-400 px-5 py-4 text-sm font-black uppercase tracking-wide text-black shadow-[0_0_34px_rgba(52,211,153,0.4)] transition-transform hover:scale-[1.02]"
+        >
+          Desbloquear Biblioteca por R$ 67
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-4 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-300"
+        >
+          Continuar explorando
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,26 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const ROTAS_ADMIN_PUBLICAS = ["/admin/login", "/admin/signup"];
+export async function proxy(request: NextRequest) {
+  const response = await updateSession(request);
 
-export default async function proxy(request: NextRequest) {
-  const { supabaseResponse, user } = await updateSession(request);
+  if (
+    request.nextUrl.pathname.startsWith("/admin") &&
+    request.nextUrl.pathname !== "/admin/login"
+  ) {
+    const hasAuthCookie = request.cookies
+      .getAll()
+      .some((cookie) => cookie.name.startsWith("sb-"));
 
-  const { pathname } = request.nextUrl;
-  const isRotaAdmin = pathname.startsWith("/admin");
-  const isRotaAdminPublica = ROTAS_ADMIN_PUBLICAS.some((rota) =>
-    pathname.startsWith(rota)
-  );
-
-  if (isRotaAdmin && !isRotaAdminPublica && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
+    if (!hasAuthCookie) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
   }
 
-  return supabaseResponse;
+  return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

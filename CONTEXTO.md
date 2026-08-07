@@ -113,17 +113,17 @@ via `cache()` do React).
 
 Rotas dentro do grupo `src/app/(membros)/` (layout com menu lateral em
 `Sidebar.tsx`):
-- `/` — Início: VSL + CTA (modo demo) ou boas-vindas (modo entrega).
+- `/` — Início: oferta/checkout principal, com carrossel de prévia das
+  metáforas, seção de embasamento teórico e CTA para checkout.
 - `/metaforas` — biblioteca em fileiras horizontais (estilo Netflix,
   **sem** modo grade — foi removido a pedido do Kenneth). Card `liberado`
-  tem ícone de play; card `em_breve` tem cadeado. Em modo demo, clicar em
-  QUALQUER card redireciona para `/pagamento`. Em modo entrega, `liberado`
-  abre o modal de vídeo, `em_breve` fica inerte (não faz nada).
-- `/gerador` — fluxo de 3 etapas. Botão final redireciona pro `/pagamento`
+  tem ícone de play; card `em_breve` tem cadeado. Em modo demo, apenas
+  "Guarda-chuva aberto" abre o player; os demais abrem o modal de conversão
+  para `/#oferta`. Em modo entrega, `liberado` abre o modal de vídeo,
+  `em_breve` fica inerte (não faz nada).
+- `/gerador` — fluxo de 3 etapas. Botão final redireciona pro `/#oferta`
   em modo demo; em modo entrega mostra "em breve" (**não é funcional de
   verdade ainda** — foi decisão explícita adiar isso, ver "Pendências").
-- `/pagamento` — oferta + botão de checkout (usa `CHECKOUT_URL`, ainda
-  placeholder). Some do menu lateral quando `isDemo = false`.
 - `/login` — login do comprador.
 
 ## Painel admin (`/admin`)
@@ -155,8 +155,9 @@ zinc + teal) — decisão explícita para priorizar tempo.
 2. **Provisionamento de comprador é manual** — sem integração com gateway de
    pagamento (Kirvano ou outro). Se decidir automatizar, vai precisar de um
    endpoint de webhook + validação de assinatura do gateway.
-3. **`VSL_URL` e `CHECKOUT_URL` vazios** — placeholders visuais até o
-   Kenneth mandar os links reais.
+3. **`VSL_URL` não está mais em uso na navegação principal** — a antiga página
+   de VSL foi substituída pela oferta na rota `/`. `CHECKOUT_URL` aponta para
+   o checkout Kirvano atual.
 4. **40 metáforas "em_breve" sem vídeo real** — títulos gerados para
    preencher a biblioteca; falta gravar/upar os vídeos e trocar o status
    para `liberado` pelo painel admin.
@@ -170,5 +171,4 @@ zinc + teal) — decisão explícita para priorizar tempo.
 - Não mexer nas tabelas `pesquisa_997_respostas` e `leads_kenneth` (não são
   deste projeto).
 - Não trocar as políticas de RLS para usar service role key sem necessidade
-  real — o desenho atual evita isso de propósito.
-- Não commitar `.env.local`.
+  real — o desen

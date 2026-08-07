@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { criarAcessoComprador, revogarAcesso } from "@/app/admin/(protected)/membros/actions";
 import CriarMembroForm from "@/app/admin/(protected)/membros/CriarMembroForm";
 import RevogarButton from "@/app/admin/(protected)/membros/RevogarButton";
+import { criarAcessoComprador, revogarAcesso } from "@/app/admin/(protected)/membros/actions";
 
 export default async function MembrosPage() {
   const supabase = await createClient();
@@ -12,12 +12,9 @@ export default async function MembrosPage() {
 
   return (
     <div>
-      <h1 className="mb-2 text-xl font-bold text-zinc-50">
-        Membros com acesso pago
-      </h1>
+      <h1 className="mb-2 text-xl font-bold text-zinc-50">Membros</h1>
       <p className="mb-6 text-sm text-zinc-400">
-        Crie o acesso do comprador aqui após confirmar o pagamento, e envie o
-        e-mail e a senha manualmente para ele.
+        Crie e revogue acessos de compradores manualmente.
       </p>
 
       <CriarMembroForm action={criarAcessoComprador} />
@@ -27,7 +24,7 @@ export default async function MembrosPage() {
           <thead className="bg-zinc-900 text-xs uppercase tracking-wide text-zinc-500">
             <tr>
               <th className="px-4 py-3">E-mail</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Acesso</th>
               <th className="px-4 py-3">Criado em</th>
               <th className="px-4 py-3" />
             </tr>
@@ -38,8 +35,8 @@ export default async function MembrosPage() {
                 <td className="px-4 py-3">{membro.email}</td>
                 <td className="px-4 py-3">
                   {membro.acesso_pago ? (
-                    <span className="rounded-full bg-green-400/10 px-2 py-0.5 text-xs font-medium text-green-300">
-                      Acesso ativo
+                    <span className="rounded-full bg-teal-400/10 px-2 py-0.5 text-xs font-medium text-teal-300">
+                      Ativo
                     </span>
                   ) : (
                     <span className="rounded-full bg-zinc-700/50 px-2 py-0.5 text-xs font-medium text-zinc-400">
@@ -60,7 +57,7 @@ export default async function MembrosPage() {
             {(membros ?? []).length === 0 && (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-zinc-500">
-                  Nenhum membro cadastrado ainda.
+                  Nenhum comprador cadastrado ainda.
                 </td>
               </tr>
             )}

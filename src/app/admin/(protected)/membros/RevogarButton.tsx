@@ -9,23 +9,21 @@ export default function RevogarButton({
   id: string;
   revogarAcesso: (id: string) => Promise<void>;
 }) {
-  const [pending, startTransition] = useTransition();
-
-  function handleClick() {
-    if (!window.confirm("Revogar o acesso pago desse membro?")) return;
-    startTransition(() => {
-      revogarAcesso(id);
-    });
-  }
+  const [pendente, startTransition] = useTransition();
 
   return (
     <button
       type="button"
-      onClick={handleClick}
-      disabled={pending}
+      disabled={pendente}
+      onClick={() => {
+        if (!confirm("Revogar acesso deste comprador?")) return;
+        startTransition(() => {
+          void revogarAcesso(id);
+        });
+      }}
       className="text-red-400 hover:underline disabled:opacity-50"
     >
-      {pending ? "Revogando..." : "Revogar"}
+      {pendente ? "Revogando..." : "Revogar"}
     </button>
   );
 }

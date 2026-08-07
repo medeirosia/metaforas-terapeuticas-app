@@ -24,26 +24,33 @@ export default function PosterCard({
   progresso,
   destaque = false,
   preencherLargura = false,
+  bloqueado = false,
+  compacto = false,
 }: {
   metafora: Metafora;
   onSelect: (metafora: Metafora) => void;
   progresso?: number;
   destaque?: boolean;
   preencherLargura?: boolean;
+  bloqueado?: boolean;
+  compacto?: boolean;
 }) {
   const largura = preencherLargura
     ? "w-full"
-    : destaque
+    : compacto
+      ? "w-28 sm:w-32 md:w-36"
+      : destaque
       ? "w-48 sm:w-56 md:w-64"
       : "w-32 sm:w-40 md:w-44";
 
   const emBreve = metafora.status === "em_breve";
+  const exibirBloqueio = emBreve || bloqueado;
 
   return (
     <button
       type="button"
       onClick={() => onSelect(metafora)}
-      className={`glass-card group relative overflow-hidden rounded-3xl text-left transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:z-10 hover:scale-105 hover:border-gold/60 hover:shadow-[0_0_40px_rgba(167,139,113,0.25)] ${preencherLargura ? "" : "shrink-0 snap-start"} ${largura}`}
+      className={`glass-card group relative overflow-hidden ${compacto ? "rounded-2xl" : "rounded-3xl"} text-left transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:z-10 hover:scale-105 hover:border-gold/60 hover:shadow-[0_0_40px_rgba(167,139,113,0.25)] ${preencherLargura ? "" : "shrink-0 snap-start"} ${largura}`}
     >
       <div className="relative aspect-[9/16] w-full overflow-hidden bg-black">
         {metafora.thumb_url ? (
@@ -71,21 +78,21 @@ export default function PosterCard({
 
         <div
           className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-            emBreve
-              ? "bg-black/40 opacity-100"
+            exibirBloqueio
+              ? "bg-black/60 opacity-100 backdrop-blur-[1.5px]"
               : "bg-black/10 opacity-0 group-hover:opacity-100 group-hover:bg-black/30"
           }`}
         >
           <span
-            className={`flex h-11 w-11 items-center justify-center rounded-full shadow-lg ${
-              emBreve ? "bg-black/60 text-gold-light" : "bg-gold text-black"
+            className={`flex ${compacto ? "h-10 w-10" : "h-11 w-11"} items-center justify-center rounded-full shadow-lg ${
+              exibirBloqueio ? "bg-black/65 text-zinc-100 ring-1 ring-white/15" : "bg-gold text-black"
             }`}
           >
-            {emBreve ? <LockIcon className="h-5 w-5" /> : <PlayIcon />}
+            {exibirBloqueio ? <LockIcon className="h-5 w-5" /> : <PlayIcon />}
           </span>
         </div>
 
-        {typeof progresso === "number" && !emBreve && (
+        {typeof progresso === "number" && !exibirBloqueio && (
           <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20">
             <div
               className="h-full bg-gold"
@@ -94,12 +101,12 @@ export default function PosterCard({
           </div>
         )}
       </div>
-      <div className="p-2.5">
-        <p className="truncate text-sm font-medium text-zinc-100">
+      <div className={compacto ? "p-2" : "p-2.5"}>
+        <p className={`${compacto ? "text-xs" : "text-sm"} truncate font-medium text-zinc-100`}>
           {metafora.titulo}
         </p>
-        {emBreve && (
-          <p className="text-xs text-gold-light/70">Em breve</p>
+        {exibirBloqueio && (
+          <p className="text-xs text-zinc-500">🔒 Bloqueado</p>
         )}
       </div>
     </button>

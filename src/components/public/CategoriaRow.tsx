@@ -10,12 +10,18 @@ export default function CategoriaRow({
   onSelect,
   progressos,
   destaque = false,
+  isDemo = false,
+  compacto = false,
+  isLiberadaDemo,
 }: {
   titulo: string;
   metaforas: Metafora[];
   onSelect: (metafora: Metafora) => void;
   progressos?: Record<string, number>;
   destaque?: boolean;
+  isDemo?: boolean;
+  compacto?: boolean;
+  isLiberadaDemo?: (metafora: Metafora) => boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +36,7 @@ export default function CategoriaRow({
 
   return (
     <section className="group/row">
-      <h2 className="mb-2 px-6 font-serif text-lg italic text-gold-light sm:text-xl">
+      <h2 className={`${compacto ? "mb-2 px-4 text-base sm:px-6 sm:text-lg" : "mb-2 px-6 text-lg sm:text-xl"} font-serif italic text-gold-light`}>
         {titulo}
       </h2>
       <div className="relative">
@@ -44,7 +50,7 @@ export default function CategoriaRow({
         </button>
         <div
           ref={scrollRef}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className={`${compacto ? "gap-2.5 px-4 sm:px-6" : "gap-3 px-6"} flex snap-x snap-mandatory overflow-x-auto pb-2 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}
         >
           {metaforas.map((metafora) => (
             <PosterCard
@@ -53,6 +59,8 @@ export default function CategoriaRow({
               onSelect={onSelect}
               progresso={progressos?.[metafora.slug]}
               destaque={destaque}
+              bloqueado={isDemo && !(isLiberadaDemo?.(metafora) ?? (destaque && metafora.status === "liberado"))}
+              compacto={compacto}
             />
           ))}
         </div>

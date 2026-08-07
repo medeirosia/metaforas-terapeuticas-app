@@ -1,7 +1,9 @@
-export function slugify(texto: string) {
-  return texto
-    .toLowerCase()
+export function slugify(valor: string) {
+  return valor
     .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+    .replace(/^-+|-+$/g, "");
 }
