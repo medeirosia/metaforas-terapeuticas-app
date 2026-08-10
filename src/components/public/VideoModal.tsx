@@ -120,8 +120,7 @@ export default function VideoModal({
                 </p>
                 <p className="mt-1.5 text-xs leading-relaxed text-zinc-300">
                   Por apenas{" "}
-                  <strong className="text-emerald-300">12x de R$ 6,83</strong>{" "}
-                  ou <strong className="text-gold-light">R$ 67,00 à vista</strong>
+                  <strong className="text-emerald-300">R$ 47</strong>{" "}
                 </p>
                 <button
                   type="button"
