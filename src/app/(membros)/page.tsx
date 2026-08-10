@@ -223,13 +223,13 @@ export default async function InicioPage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(52,211,153,0.28),transparent_45%)]" />
           <div className="relative">
             <p className="text-sm font-bold text-zinc-400">
-              De <span className="line-through">R$ 197</span> por apenas:
+              De <span className="line-through">R$ 197</span>
             </p>
             <span className="mt-4 inline-flex rounded-full border border-emerald-400/35 bg-emerald-400/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-emerald-300">
               Pagamento único • Sem assinatura • Acesso vitalício
             </span>
             <p className="mt-4 text-lg font-bold text-emerald-200">
-              R$
+              apenas
             </p>
             <div className="flex items-end justify-center gap-2">
               <span className="pb-2 text-2xl font-black text-emerald-300">R$</span>
