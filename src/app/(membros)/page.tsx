@@ -229,16 +229,16 @@ export default async function InicioPage() {
               Pagamento único • Sem assinatura • Acesso vitalício
             </span>
             <p className="mt-4 text-lg font-bold text-emerald-200">
-              12x de
+              R$
             </p>
             <div className="flex items-end justify-center gap-2">
               <span className="pb-2 text-2xl font-black text-emerald-300">R$</span>
               <strong className="text-7xl font-black leading-none text-emerald-300 sm:text-8xl">
-                6,83
+                47
               </strong>
             </div>
             <p className="mt-3 text-sm font-semibold text-zinc-300">
-              ou R$ 67,00 à vista
+              Pagamento Único.
             </p>
 
             <a
