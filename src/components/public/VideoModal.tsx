@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import MarcaDaguaAluno from "@/components/public/MarcaDaguaAluno";
 import ShareButtons from "@/components/public/ShareButtons";
 import { criarMensagemCompartilhar, type Metafora } from "@/lib/metaforas";
 
@@ -11,6 +12,7 @@ export default function VideoModal({
   onProgresso,
   exibirCtaPreview = false,
   onUnlock,
+  emailAluno = null,
 }: {
   metafora: Metafora;
   categoriaNome: string;
@@ -18,6 +20,7 @@ export default function VideoModal({
   onProgresso: (slug: string, progresso: number) => void;
   exibirCtaPreview?: boolean;
   onUnlock?: () => void;
+  emailAluno?: string | null;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoFinalizado, setVideoFinalizado] = useState(false);
@@ -94,6 +97,31 @@ export default function VideoModal({
               playsInline
               onPlay={() => setVideoFinalizado(false)}
             />
+            {!exibirCtaPreview && <MarcaDaguaAluno email={emailAluno} />}
+            {!exibirCtaPreview && (
+              <div className="absolute bottom-28 left-4 z-20 sm:bottom-4">
+                <a
+                  href={metafora.video_url ?? "#"}
+                  download={`${metafora.slug}.mp4`}
+                  aria-label="Baixar esta metáfora"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5"
+                  >
+                    <path d="M12 3v12" />
+                    <path d="m7 11 5 5 5-5" />
+                    <path d="M4 20h16" />
+                  </svg>
+                </a>
+              </div>
+            )}
             {!exibirCtaPreview && (
               <div className="absolute bottom-28 right-4 z-20 sm:bottom-4">
                 <ShareButtons

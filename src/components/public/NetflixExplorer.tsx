@@ -41,9 +41,11 @@ function isMetaforaLiberadaDemo(metafora: Metafora) {
 export default function NetflixExplorer({
   categorias,
   isDemo,
+  emailAluno = null,
 }: {
   categorias: CategoriaComMetaforas[];
   isDemo: boolean;
+  emailAluno?: string | null;
 }) {
   const router = useRouter();
   const [busca, setBusca] = useState("");
@@ -245,6 +247,7 @@ export default function NetflixExplorer({
           onProgresso={salvarProgresso}
           exibirCtaPreview={isDemo && isMetaforaLiberadaDemo(selecionada)}
           onUnlock={() => router.push("/#oferta")}
+          emailAluno={emailAluno}
         />
       )}
 
