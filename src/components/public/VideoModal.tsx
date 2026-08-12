@@ -99,7 +99,9 @@ export default function VideoModal({
             />
             {!exibirCtaPreview && <MarcaDaguaAluno email={emailAluno} />}
             {!exibirCtaPreview && (
-              <div className="absolute bottom-28 left-4 z-20 sm:bottom-4">
+              // Empilhados e acima da barra de controles do player: no rodape
+              // eles cobriam o play e o tempo.
+              <div className="absolute bottom-32 right-4 z-20 flex flex-col items-center gap-3 sm:bottom-16">
                 <a
                   href={metafora.video_url ?? "#"}
                   download={`${metafora.slug}.mp4`}
@@ -120,10 +122,6 @@ export default function VideoModal({
                     <path d="M4 20h16" />
                   </svg>
                 </a>
-              </div>
-            )}
-            {!exibirCtaPreview && (
-              <div className="absolute bottom-28 right-4 z-20 sm:bottom-4">
                 <ShareButtons
                   titulo={metafora.titulo}
                   videoUrl={metafora.video_url ?? ""}
