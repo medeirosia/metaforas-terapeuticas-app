@@ -11,6 +11,15 @@ function WhatsAppIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
+function Spinner({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={`animate-spin ${className}`} aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function ShareButtons({
   titulo,
   videoUrl,
@@ -25,6 +34,7 @@ export default function ShareButtons({
   compacto?: boolean;
 }) {
   const [copiado, setCopiado] = useState(false);
+  const [preparando, setPreparando] = useState(false);
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/metaforas?video=${slug}`
@@ -51,17 +61,50 @@ export default function ShareButtons({
     `${mensagem}\n\n${shareUrl}`
   )}`;
 
+  // Manda o ARQUIVO do vídeo (estilo TikTok), não um link: baixa o MP4 e abre
+  // a folha de compartilhar do sistema com ele anexado. Quem recebe assiste
+  // direto no WhatsApp. Onde o navegador não suporta anexar arquivo
+  // (desktop, WebView antiga), cai no link de sempre.
+  async function enviarNoWhatsApp() {
+    if (preparando) return;
+
+    const suportaArquivo =
+      typeof navigator !== "undefined" &&
+      "canShare" in navigator &&
+      navigator.canShare({ files: [new File([""], "t.mp4", { type: "video/mp4" })] });
+
+    if (!suportaArquivo || !videoUrl) {
+      window.open(whatsappUrl, "_blank", "noreferrer");
+      return;
+    }
+
+    setPreparando(true);
+    try {
+      const resposta = await fetch(videoUrl);
+      if (!resposta.ok) throw new Error(`download falhou: ${resposta.status}`);
+      const blob = await resposta.blob();
+      const arquivo = new File([blob], `${slug}.mp4`, { type: "video/mp4" });
+      await navigator.share({ files: [arquivo], title: titulo });
+    } catch (erro) {
+      // usuário fechou a folha de compartilhar: não é erro
+      if (erro instanceof DOMException && erro.name === "AbortError") return;
+      window.open(whatsappUrl, "_blank", "noreferrer");
+    } finally {
+      setPreparando(false);
+    }
+  }
+
   if (compacto) {
     return (
-      <a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Enviar no WhatsApp"
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400 text-black shadow-[0_0_28px_rgba(52,211,153,0.45)] transition-transform hover:scale-105"
+      <button
+        type="button"
+        onClick={enviarNoWhatsApp}
+        disabled={preparando}
+        aria-label={preparando ? "Preparando vídeo..." : "Enviar no WhatsApp"}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400 text-black shadow-[0_0_28px_rgba(52,211,153,0.45)] transition-transform hover:scale-105 disabled:opacity-80"
       >
-        <WhatsAppIcon className="h-6 w-6" />
-      </a>
+        {preparando ? <Spinner className="h-6 w-6" /> : <WhatsAppIcon className="h-6 w-6" />}
+      </button>
     );
   }
 
@@ -74,14 +117,22 @@ export default function ShareButtons({
       >
         {copiado ? "Mensagem copiada" : "Compartilhar"}
       </button>
-      <a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="glass-card flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:border-gold/50 hover:text-gold-light"
+      <button
+        type="button"
+        onClick={enviarNoWhatsApp}
+        disabled={preparando}
+        className="glass-card flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:border-gold/50 hover:text-gold-light disabled:opacity-80"
       >
-        <WhatsAppIcon /> Enviar no WhatsApp
-      </a>
+        {preparando ? (
+          <>
+            <Spinner /> Preparando vídeo...
+          </>
+        ) : (
+          <>
+            <WhatsAppIcon /> Enviar no WhatsApp
+          </>
+        )}
+      </button>
     </div>
   );
 }
