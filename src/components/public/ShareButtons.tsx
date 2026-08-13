@@ -84,7 +84,8 @@ export default function ShareButtons({
       if (!resposta.ok) throw new Error(`download falhou: ${resposta.status}`);
       const blob = await resposta.blob();
       const arquivo = new File([blob], `${slug}.mp4`, { type: "video/mp4" });
-      await navigator.share({ files: [arquivo], title: titulo });
+      // O texto vira legenda do vídeo no WhatsApp: resumo da metáfora + CTA.
+      await navigator.share({ files: [arquivo], title: titulo, text: mensagem });
     } catch (erro) {
       // usuário fechou a folha de compartilhar: não é erro
       if (erro instanceof DOMException && erro.name === "AbortError") return;

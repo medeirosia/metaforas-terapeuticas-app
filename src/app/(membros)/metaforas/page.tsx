@@ -3,7 +3,7 @@ import { getCategoriasComMetaforas } from "@/lib/metaforas-queries";
 import { getAccessState } from "@/lib/access";
 
 export default async function MetaforasPage() {
-  const [categorias, { isDemo, userEmail }] = await Promise.all([
+  const [categorias, { isDemo, userEmail, licencaRedes }] = await Promise.all([
     getCategoriasComMetaforas(),
     getAccessState(),
   ]);
@@ -12,7 +12,8 @@ export default async function MetaforasPage() {
     <NetflixExplorer
       categorias={categorias}
       isDemo={isDemo}
-      emailAluno={userEmail}
+      // Quem comprou a licença de uso nas redes assiste sem a marca d'água.
+      emailAluno={licencaRedes ? null : userEmail}
     />
   );
 }

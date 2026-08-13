@@ -57,6 +57,24 @@ function gerarSenha(): string {
   );
 }
 
+// Order bump "licença de uso nas redes sociais": quem compra assiste sem a
+// marca d'água com o e-mail. A Kirvano manda os itens do pedido em campos que
+// mudam de conta para conta, então varremos o payload inteiro atrás do termo
+// (ajustável por KIRVANO_TERMO_LICENCA sem precisar de deploy).
+function detectarLicenca(payload: unknown): boolean {
+  const termo = (process.env.KIRVANO_TERMO_LICENCA ?? "licen").toLowerCase();
+  const itens = [
+    ...(Array.isArray((payload as any)?.products) ? (payload as any).products : []),
+    ...(Array.isArray((payload as any)?.order_bumps) ? (payload as any).order_bumps : []),
+    ...(Array.isArray((payload as any)?.items) ? (payload as any).items : []),
+  ];
+  return itens.some((item) =>
+    ["name", "offer_name", "product_name", "title", "description"].some((campo) =>
+      String(item?.[campo] ?? "").toLowerCase().includes(termo)
+    )
+  );
+}
+
 type EmailAcesso =
   | { tipo: "nova-conta"; senha: string }
   | { tipo: "recompra" };
@@ -142,6 +160,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ erro: "payload sem e-mail" }, { status: 400 });
   }
 
+  const comprouLicenca = detectarLicenca(payload);
+
   if (evento === "SALE_APPROVED") {
     const senha = gerarSenha();
 
@@ -190,6 +210,8 @@ export async function POST(request: Request) {
       id: userId,
       email,
       acesso_pago: true,
+      // Só liga; uma compra sem o bump não tira a licença de quem já comprou.
+      ...(comprouLicenca ? { licenca_redes: true } : {}),
     });
     if (upsertError) {
       console.error("[kirvano] upsert members falhou:", upsertError);

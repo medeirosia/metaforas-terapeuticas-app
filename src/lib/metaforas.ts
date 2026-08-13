@@ -28,9 +28,11 @@ export type CategoriaComMetaforas = Categoria & {
 };
 
 const LINK_VENDAS =
-  process.env.NEXT_PUBLIC_LINK_VENDAS ??
-  "https://terapeutadofuturo.com/video-metaforas/";
+  process.env.NEXT_PUBLIC_LINK_VENDAS ?? "metaforasterapeuticas.video";
 
 export function criarMensagemCompartilhar(titulo: string, resumo: string) {
-  return `Olha esse vídeo sobre ${titulo.toLowerCase()}... 🎥\n\n${resumo}\n\nPara ver mais vídeos como esse, acesse: ${LINK_VENDAS}`;
+  const corpo = resumo?.trim()
+    ? `${titulo}\n\n${resumo.trim()}`
+    : `${titulo}`;
+  return `${corpo}\n\nPara mais metáforas como essa, acesse: ${LINK_VENDAS}`;
 }

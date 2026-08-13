@@ -1,13 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import CriarMembroForm from "@/app/admin/(protected)/membros/CriarMembroForm";
 import RevogarButton from "@/app/admin/(protected)/membros/RevogarButton";
-import { criarAcessoComprador, revogarAcesso } from "@/app/admin/(protected)/membros/actions";
+import LicencaToggle from "@/app/admin/(protected)/membros/LicencaToggle";
+import {
+  alternarLicencaRedes,
+  criarAcessoComprador,
+  revogarAcesso,
+} from "@/app/admin/(protected)/membros/actions";
 
 export default async function MembrosPage() {
   const supabase = await createClient();
   const { data: membros } = await supabase
     .from("members")
-    .select("id, email, acesso_pago, created_at")
+    .select("id, email, acesso_pago, licenca_redes, created_at")
     .order("created_at", { ascending: false });
 
   return (
@@ -25,6 +30,7 @@ export default async function MembrosPage() {
             <tr>
               <th className="px-4 py-3">E-mail</th>
               <th className="px-4 py-3">Acesso</th>
+              <th className="px-4 py-3">Licença redes</th>
               <th className="px-4 py-3">Criado em</th>
               <th className="px-4 py-3" />
             </tr>
@@ -44,6 +50,13 @@ export default async function MembrosPage() {
                     </span>
                   )}
                 </td>
+                <td className="px-4 py-3">
+                  <LicencaToggle
+                    id={membro.id}
+                    ativa={membro.licenca_redes ?? false}
+                    alternarLicencaRedes={alternarLicencaRedes}
+                  />
+                </td>
                 <td className="px-4 py-3 text-zinc-400">
                   {new Date(membro.created_at).toLocaleDateString("pt-BR")}
                 </td>
@@ -56,7 +69,7 @@ export default async function MembrosPage() {
             ))}
             {(membros ?? []).length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-zinc-500">
+                <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
                   Nenhum comprador cadastrado ainda.
                 </td>
               </tr>

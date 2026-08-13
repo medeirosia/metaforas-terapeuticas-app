@@ -51,3 +51,16 @@ export async function revogarAcesso(id: string) {
   if (error) throw error;
   revalidatePath("/admin/membros");
 }
+
+// Order bump "licença de uso nas redes": liga/desliga a marca d'água com o
+// e-mail no player desse comprador. O webhook também liga sozinho quando a
+// Kirvano manda o bump no pedido; isto aqui é o controle na mão.
+export async function alternarLicencaRedes(id: string, ativar: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("members")
+    .update({ licenca_redes: ativar })
+    .eq("id", id);
+  if (error) throw error;
+  revalidatePath("/admin/membros");
+}
