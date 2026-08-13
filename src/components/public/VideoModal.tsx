@@ -13,6 +13,7 @@ export default function VideoModal({
   exibirCtaPreview = false,
   onUnlock,
   emailAluno = null,
+  licencaRedes = false,
 }: {
   metafora: Metafora;
   categoriaNome: string;
@@ -21,6 +22,7 @@ export default function VideoModal({
   exibirCtaPreview?: boolean;
   onUnlock?: () => void;
   emailAluno?: string | null;
+  licencaRedes?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoFinalizado, setVideoFinalizado] = useState(false);
@@ -103,9 +105,19 @@ export default function VideoModal({
               // controles do player (que ocupa o rodape do video).
               <div className="absolute bottom-28 left-4 z-20 sm:bottom-16">
                 <a
-                  href={metafora.video_url ?? "#"}
+                  // Com licença de uso nas redes, baixa a versão limpa (sem
+                  // logo) pela rota que confere a licença e assina o link.
+                  href={
+                    licencaRedes
+                      ? `/api/baixar/${metafora.slug}`
+                      : metafora.video_url ?? "#"
+                  }
                   download={`${metafora.slug}.mp4`}
-                  aria-label="Baixar esta metáfora"
+                  aria-label={
+                    licencaRedes
+                      ? "Baixar esta metáfora sem marca d'água"
+                      : "Baixar esta metáfora"
+                  }
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
                 >
                   <svg

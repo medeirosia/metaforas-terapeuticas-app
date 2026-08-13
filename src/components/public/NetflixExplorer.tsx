@@ -42,10 +42,12 @@ export default function NetflixExplorer({
   categorias,
   isDemo,
   emailAluno = null,
+  licencaRedes = false,
 }: {
   categorias: CategoriaComMetaforas[];
   isDemo: boolean;
   emailAluno?: string | null;
+  licencaRedes?: boolean;
 }) {
   const router = useRouter();
   const [busca, setBusca] = useState("");
@@ -248,6 +250,7 @@ export default function NetflixExplorer({
           exibirCtaPreview={isDemo && isMetaforaLiberadaDemo(selecionada)}
           onUnlock={() => router.push("/#oferta")}
           emailAluno={emailAluno}
+          licencaRedes={licencaRedes}
         />
       )}
 

@@ -14,6 +14,7 @@ export default async function MetaforasPage() {
       isDemo={isDemo}
       // Quem comprou a licença de uso nas redes assiste sem a marca d'água.
       emailAluno={licencaRedes ? null : userEmail}
+      licencaRedes={licencaRedes}
     />
   );
 }
