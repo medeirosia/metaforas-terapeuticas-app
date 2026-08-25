@@ -3,43 +3,96 @@
 import { revalidatePath } from "next/cache";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { enviarEmailAcesso, gerarSenha } from "@/lib/acesso";
 
-export async function criarAcessoComprador(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const senha = String(formData.get("senha") ?? "");
-  if (!email || senha.length < 6) {
-    throw new Error("Informe e-mail e senha com pelo menos 6 caracteres.");
-  }
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://www.metaforasterapeuticas.video";
 
-  const authClient = createSupabaseClient(
+function clientIsolado() {
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    }
+    { auth: { persistSession: false, autoRefreshToken: false } }
   );
+}
 
-  const { data, error } = await authClient.auth.signUp({
-    email,
-    password: senha,
-  });
-  if (error) throw error;
+/**
+ * Um botão só, para os dois casos que o Kenneth pediu:
+ *
+ *  - e-mail novo (presentear alguém): cria a conta, libera o acesso e manda o
+ *    MESMO e-mail do webhook, já com a senha dentro.
+ *  - e-mail que já existe (cliente que não consegue entrar): reativa o acesso
+ *    e dispara o link de redefinir senha.
+ *
+ * O segundo caminho existe porque a operação roda sem service role — não dá
+ * para escolher a senha de quem já tem conta, e nem precisa: a pessoa define
+ * a dela pelo link.
+ */
+export async function enviarAcessoPorEmail(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const nome = String(formData.get("nome") ?? "").trim();
+  const licenca = formData.get("licenca") === "on";
 
-  const userId = data.user?.id;
-  if (!userId) throw new Error("Não foi possível criar usuário.");
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    throw new Error("Informe um e-mail válido.");
+  }
+
+  const senha = gerarSenha();
+  const { data, error } = await clientIsolado().auth.signUp({ email, password: senha });
 
   const supabase = await createClient();
-  const { error: insertError } = await supabase.from("members").upsert({
-    id: userId,
-    email,
-    acesso_pago: true,
-  });
-  if (insertError) throw insertError;
+  const userId = data?.user?.id ?? null;
 
+  if (!error && userId) {
+    const { error: upsertError } = await supabase.from("members").upsert({
+      id: userId,
+      email,
+      acesso_pago: true,
+      ...(licenca ? { licenca_redes: true } : {}),
+    });
+    if (upsertError) throw upsertError;
+
+    await enviarEmailAcesso(nome, email, { tipo: "nova-conta", senha });
+    revalidatePath("/admin/membros");
+    return `Acesso criado e e-mail enviado para ${email} com a senha.`;
+  }
+
+  const jaExiste = /already|registered|exists/i.test(error?.message ?? "");
+  if (!jaExiste) throw new Error(error?.message ?? "Não foi possível criar o acesso.");
+
+  // Já tem conta: garante o acesso ligado e manda o link de nova senha.
+  const { data: linha } = await supabase
+    .from("members")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (linha) {
+    await supabase
+      .from("members")
+      .update({ acesso_pago: true, ...(licenca ? { licenca_redes: true } : {}) })
+      .eq("id", linha.id);
+  }
+
+  await reenviarSenha(email);
   revalidatePath("/admin/membros");
+  return `${email} já tinha conta. Acesso liberado e enviei o link para a pessoa criar uma senha nova.`;
+}
+
+/**
+ * Dispara o e-mail de redefinição de senha do próprio Supabase. Usado pelo
+ * botão "Reenviar" de cada linha e pelo caminho de conta existente acima.
+ */
+export async function reenviarSenha(email: string) {
+  const { error } = await clientIsolado().auth.resetPasswordForEmail(email, {
+    redirectTo: `${APP_URL}/redefinir-senha`,
+  });
+  if (error) throw new Error(`Não consegui enviar o e-mail: ${error.message}`);
+}
+
+export async function reenviarAcesso(email: string) {
+  await reenviarSenha(email);
+  return `Link para criar uma senha nova enviado para ${email}.`;
 }
 
 export async function revogarAcesso(id: string) {

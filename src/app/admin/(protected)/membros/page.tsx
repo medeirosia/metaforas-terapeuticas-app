@@ -2,9 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import CriarMembroForm from "@/app/admin/(protected)/membros/CriarMembroForm";
 import RevogarButton from "@/app/admin/(protected)/membros/RevogarButton";
 import LicencaToggle from "@/app/admin/(protected)/membros/LicencaToggle";
+import ReenviarButton from "@/app/admin/(protected)/membros/ReenviarButton";
 import {
   alternarLicencaRedes,
-  criarAcessoComprador,
+  enviarAcessoPorEmail,
+  reenviarAcesso,
   revogarAcesso,
 } from "@/app/admin/(protected)/membros/actions";
 
@@ -19,10 +21,10 @@ export default async function MembrosPage() {
     <div>
       <h1 className="mb-2 text-xl font-bold text-zinc-50">Membros</h1>
       <p className="mb-6 text-sm text-zinc-400">
-        Crie e revogue acessos de compradores manualmente.
+        Envie acesso para quem você quiser, reenvie para quem perdeu a senha e revogue quando precisar.
       </p>
 
-      <CriarMembroForm action={criarAcessoComprador} />
+      <CriarMembroForm action={enviarAcessoPorEmail} />
 
       <div className="mt-8 overflow-hidden rounded-xl border border-white/10">
         <table className="w-full text-left text-sm">
@@ -60,10 +62,16 @@ export default async function MembrosPage() {
                 <td className="px-4 py-3 text-zinc-400">
                   {new Date(membro.created_at).toLocaleDateString("pt-BR")}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  {membro.acesso_pago && (
-                    <RevogarButton id={membro.id} revogarAcesso={revogarAcesso} />
-                  )}
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-4 whitespace-nowrap">
+                    <ReenviarButton
+                      email={membro.email}
+                      reenviarAcesso={reenviarAcesso}
+                    />
+                    {membro.acesso_pago && (
+                      <RevogarButton id={membro.id} revogarAcesso={revogarAcesso} />
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
