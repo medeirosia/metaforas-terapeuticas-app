@@ -26,8 +26,11 @@ export async function enviarEmailAcesso(
   email: string,
   acesso: EmailAcesso
 ) {
-  const url =
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://www.metaforasterapeuticas.video";
+  // Mesma blindagem do painel: link de e-mail nunca pode sair apontando para
+  // um endereço de desenvolvimento.
+  const url = process.env.NEXT_PUBLIC_APP_URL?.startsWith("https://")
+    ? process.env.NEXT_PUBLIC_APP_URL
+    : "https://www.metaforasterapeuticas.video";
   const primeiro = (nome || "").trim().split(" ")[0] || "tudo bem";
 
   const blocoCredenciais =

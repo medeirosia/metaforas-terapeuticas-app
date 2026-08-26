@@ -5,8 +5,13 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { enviarEmailAcesso, gerarSenha } from "@/lib/acesso";
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://www.metaforasterapeuticas.video";
+// Destino dos links que saem por e-mail. Valor de desenvolvimento (localhost)
+// não serve aqui: o Supabase recusa fora da allow-list e joga o comprador na
+// raiz do site, com o token de recuperação e sem tela para criar senha.
+const SITE = "https://www.metaforasterapeuticas.video";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL?.startsWith("https://")
+  ? process.env.NEXT_PUBLIC_APP_URL
+  : SITE;
 
 function clientIsolado() {
   return createSupabaseClient(
