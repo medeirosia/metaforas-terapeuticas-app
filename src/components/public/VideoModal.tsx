@@ -107,6 +107,10 @@ export default function VideoModal({
                 <a
                   // Com licença de uso nas redes, baixa a versão limpa (sem
                   // logo) pela rota que confere a licença e assina o link.
+                  //
+                  // Quem tem licença vê um botão ESCRITO. O ícone mudo fazia
+                  // o comprador salvar o vídeo pelo player e levar o arquivo
+                  // com logo, achando que a licença não tinha funcionado.
                   href={
                     licencaRedes
                       ? `/api/baixar/${metafora.slug}`
@@ -115,10 +119,14 @@ export default function VideoModal({
                   download={`${metafora.slug}.mp4`}
                   aria-label={
                     licencaRedes
-                      ? "Baixar esta metáfora sem marca d'água"
+                      ? "Baixar esta metáfora sem logo"
                       : "Baixar esta metáfora"
                   }
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
+                  className={
+                    licencaRedes
+                      ? "flex h-11 items-center gap-2 rounded-full border border-gold/55 bg-black/70 px-4 text-xs font-semibold text-gold-light shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
+                      : "flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
+                  }
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -127,12 +135,15 @@ export default function VideoModal({
                     strokeWidth="1.8"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="h-5 w-5"
+                    className="h-5 w-5 shrink-0"
                   >
                     <path d="M12 3v12" />
                     <path d="m7 11 5 5 5-5" />
                     <path d="M4 20h16" />
                   </svg>
+                  {licencaRedes && (
+                    <span className="whitespace-nowrap">Baixar sem logo</span>
+                  )}
                 </a>
               </div>
             )}
