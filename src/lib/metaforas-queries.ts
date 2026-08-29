@@ -52,6 +52,12 @@ const THUMBS_LOCAIS = new Set([
   "carta-sem-endereco-de-volta",
   "foto-que-ninguem-tira-da-parede",
   "relogio-parado-na-hora-certa",
+  "panela-no-fogo-baixo",
+  "pedra-no-sapato",
+  "cerca-dentro-do-tronco",
+  "poco-que-serve-a-rua",
+  "ponte-de-um-lado-so",
+  "ensaio-da-queda",
 ]);
 
 function thumbLocalPorSlug(slug: string) {
