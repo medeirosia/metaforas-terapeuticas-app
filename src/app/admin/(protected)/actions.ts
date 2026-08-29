@@ -53,6 +53,29 @@ async function resolverCategoriaId(
   return novaCategoria.id;
 }
 
+// As perguntas chegam uma por linha, que e como o terapeuta le no modal.
+// Virgula nao serve de separador aqui: pergunta clinica tem virgula dentro.
+function parsePerguntas(bruto: string): string[] {
+  return bruto
+    .split("\n")
+    .map((p) => p.replace(/^\s*\d+[.)]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function lerFichaClinica(formData: FormData) {
+  const texto = (campo: string) =>
+    String(formData.get(campo) ?? "").trim() || null;
+
+  return {
+    ficha_dor: texto("ficha_dor"),
+    ficha_usar: texto("ficha_usar"),
+    ficha_nao_usar: texto("ficha_nao_usar"),
+    ficha_preparo: texto("ficha_preparo"),
+    ficha_perguntas: parsePerguntas(String(formData.get("ficha_perguntas") ?? "")),
+    ficha_ponte: texto("ficha_ponte"),
+  };
+}
+
 function lerCamposFormulario(formData: FormData) {
   const titulo = String(formData.get("titulo") ?? "").trim();
   const status = String(formData.get("status") ?? "em_breve") as
@@ -65,6 +88,7 @@ function lerCamposFormulario(formData: FormData) {
   const categoriaId = String(formData.get("categoria_id") ?? "");
   const novaCategoriaNome = String(formData.get("nova_categoria_nome") ?? "");
   const dores = parseDores(String(formData.get("dores") ?? ""));
+  const ficha = lerFichaClinica(formData);
   const destaque = formData.get("destaque") === "on";
   const publicado = formData.get("publicado") === "on";
   const ordem = Number(formData.get("ordem") ?? 0);
@@ -87,6 +111,7 @@ function lerCamposFormulario(formData: FormData) {
     categoriaId,
     novaCategoriaNome,
     dores,
+    ficha,
     destaque,
     publicado,
     ordem,
@@ -125,6 +150,7 @@ export async function criarMetafora(formData: FormData) {
     descricao: campos.descricao,
     categoria_id: categoriaResolvidaId,
     dores: campos.dores,
+    ...campos.ficha,
     destaque: campos.destaque,
     publicado: campos.publicado,
     ordem: campos.ordem,
@@ -157,6 +183,7 @@ export async function atualizarMetafora(id: string, formData: FormData) {
       descricao: campos.descricao,
       categoria_id: categoriaResolvidaId,
       dores: campos.dores,
+      ...campos.ficha,
       destaque: campos.destaque,
       publicado: campos.publicado,
       ordem: campos.ordem,

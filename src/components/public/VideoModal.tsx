@@ -5,6 +5,81 @@ import MarcaDaguaAluno from "@/components/public/MarcaDaguaAluno";
 import ShareButtons from "@/components/public/ShareButtons";
 import { criarMensagemCompartilhar, type Metafora } from "@/lib/metaforas";
 
+// Ficha de uso clinico: o que o terapeuta precisa pra levar a metafora
+// pra dentro da sessao. Cada linha e opcional — metafora sem ficha
+// preenchida nao mostra bloco nenhum, em vez de mostrar rotulo vazio.
+function LinhaFicha({ rotulo, texto, alerta = false }: {
+  rotulo: string;
+  texto: string | null;
+  alerta?: boolean;
+}) {
+  if (!texto?.trim()) return null;
+  return (
+    <p className="text-sm leading-relaxed text-zinc-300">
+      <span
+        className={`font-semibold ${alerta ? "text-rose-300" : "text-gold-light"}`}
+      >
+        {rotulo}:
+      </span>{" "}
+      {texto}
+    </p>
+  );
+}
+
+function FichaClinica({ metafora }: { metafora: Metafora }) {
+  const perguntas = metafora.ficha_perguntas ?? [];
+  const temFicha =
+    perguntas.length > 0 ||
+    [
+      metafora.ficha_dor,
+      metafora.ficha_usar,
+      metafora.ficha_nao_usar,
+      metafora.ficha_preparo,
+      metafora.ficha_ponte,
+    ].some((campo) => campo?.trim());
+
+  if (!temFicha) return null;
+
+  return (
+    <section className="mt-5 space-y-3 rounded-2xl border border-gold/20 bg-gold/[0.04] p-4">
+      <p className="text-xs font-semibold uppercase tracking-widest text-gold-light">
+        Como usar na sessão
+      </p>
+
+      <LinhaFicha rotulo="Dor" texto={metafora.ficha_dor} />
+      <LinhaFicha rotulo="Use quando" texto={metafora.ficha_usar} />
+      <LinhaFicha rotulo="Não use quando" texto={metafora.ficha_nao_usar} alerta />
+
+      {metafora.ficha_preparo?.trim() && (
+        <p className="text-sm leading-relaxed text-zinc-300">
+          <span className="font-semibold text-gold-light">Frase de preparo:</span>{" "}
+          <span className="italic">&ldquo;{metafora.ficha_preparo}&rdquo;</span>
+        </p>
+      )}
+
+      {perguntas.length > 0 && (
+        <div>
+          <p className="mb-1 text-sm font-semibold text-gold-light">
+            Perguntas principais
+          </p>
+          <ol className="list-decimal space-y-1 pl-5 text-sm leading-relaxed text-zinc-300 marker:text-gold/70">
+            {perguntas.map((pergunta) => (
+              <li key={pergunta}>{pergunta}</li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {metafora.ficha_ponte?.trim() && (
+        <p className="text-sm leading-relaxed text-zinc-300">
+          <span className="font-semibold text-gold-light">Ponte:</span>{" "}
+          <span className="italic">&ldquo;{metafora.ficha_ponte}&rdquo;</span>
+        </p>
+      )}
+    </section>
+  );
+}
+
 export default function VideoModal({
   metafora,
   categoriaNome,
@@ -242,6 +317,8 @@ export default function VideoModal({
                 ))}
               </div>
             </div>
+
+            <FichaClinica metafora={metafora} />
 
             <div className="mt-4 pt-2">
               <ShareButtons

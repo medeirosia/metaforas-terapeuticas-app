@@ -80,7 +80,7 @@ export async function getCategoriasComMetaforas(): Promise<
   const { data: metaforas, error: erroMetaforas } = await supabase
     .from("metaforas")
     .select(
-      "id, titulo, slug, video_url, thumb_url, resumo, descricao, categoria_id, dores, status, destaque, publicado, ordem, created_at"
+      "id, titulo, slug, video_url, thumb_url, resumo, descricao, categoria_id, dores, ficha_dor, ficha_usar, ficha_nao_usar, ficha_preparo, ficha_perguntas, ficha_ponte, status, destaque, publicado, ordem, created_at"
     )
     .eq("publicado", true)
     .order("ordem", { ascending: true });

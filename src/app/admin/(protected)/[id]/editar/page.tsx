@@ -16,7 +16,7 @@ export default async function EditarMetaforaPage({
     supabase
       .from("metaforas")
       .select(
-        "titulo, status, video_url, thumb_url, resumo, descricao, categoria_id, dores, destaque, publicado, ordem"
+        "titulo, status, video_url, thumb_url, resumo, descricao, categoria_id, dores, ficha_dor, ficha_usar, ficha_nao_usar, ficha_preparo, ficha_perguntas, ficha_ponte, destaque, publicado, ordem"
       )
       .eq("id", id)
       .maybeSingle(),

@@ -16,6 +16,14 @@ export type Metafora = {
   descricao: string | null;
   categoria_id: string;
   dores: string[];
+  // Ficha de uso clinico: como levar a metafora pra dentro da sessao.
+  // Opcional por metafora — o bloco so aparece quando ha conteudo.
+  ficha_dor: string | null;
+  ficha_usar: string | null;
+  ficha_nao_usar: string | null;
+  ficha_preparo: string | null;
+  ficha_perguntas: string[];
+  ficha_ponte: string | null;
   status: StatusMetafora;
   destaque: boolean;
   publicado: boolean;
