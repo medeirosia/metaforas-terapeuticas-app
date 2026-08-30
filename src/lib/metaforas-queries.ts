@@ -68,6 +68,16 @@ const THUMBS_LOCAIS = new Set([
   "mesa-de-oito-lugares",
   "troco-contado-na-mao",
   "calendario-de-uma-folha",
+  "duas-trilhas-no-carpete",
+  "uniforme-atras-da-porta",
+  "corrimao-da-casa-do-pai",
+  "garrafa-guardada",
+  "xicara-colada",
+  "cano-na-parede-errada",
+  "estante-vazia",
+  "caderno-que-ninguem-le",
+  "gaveta-de-baixo",
+  "prego-na-parede",
 ]);
 
 function thumbLocalPorSlug(slug: string) {
