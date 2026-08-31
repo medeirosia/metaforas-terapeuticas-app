@@ -88,6 +88,20 @@ const THUMBS_LOCAIS = new Set([
   "botas-que-so-uma-gastou",
   "envelope-que-ele-nao-abre",
   "capacete-que-sobrou",
+  "louca-lavada-duas-vezes",
+  "nota-errada-no-meio",
+  "rodape-que-falta",
+  "cadeira-que-balanca",
+  "pedaco-queimado",
+  "acerto-que-veio-a-menos",
+  "dez-minutos-na-garagem",
+  "mao-no-ombro",
+  "restaurante-de-outro-bairro",
+  "tapete-que-nao-gastou",
+  "garfo-que-nao-solta",
+  "mao-na-boca-ao-rir",
+  "viagem-que-ele-nao-conta",
+  "exame-na-mochila",
 ]);
 
 function thumbLocalPorSlug(slug: string) {
