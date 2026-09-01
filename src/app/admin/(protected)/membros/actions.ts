@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { exigirAdminNaAcao } from "@/lib/admin";
 import { enviarEmailAcesso, gerarSenha } from "@/lib/acesso";
 
 // Destino dos links que saem por e-mail. Valor de desenvolvimento (localhost)
@@ -34,6 +35,9 @@ function clientIsolado() {
  * a dela pelo link.
  */
 export async function enviarAcessoPorEmail(formData: FormData) {
+  const supabase = await createClient();
+  await exigirAdminNaAcao(supabase);
+
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const nome = String(formData.get("nome") ?? "").trim();
   const licenca = formData.get("licenca") === "on";
@@ -45,7 +49,6 @@ export async function enviarAcessoPorEmail(formData: FormData) {
   const senha = gerarSenha();
   const { data, error } = await clientIsolado().auth.signUp({ email, password: senha });
 
-  const supabase = await createClient();
   const userId = data?.user?.id ?? null;
 
   if (!error && userId) {
@@ -87,8 +90,13 @@ export async function enviarAcessoPorEmail(formData: FormData) {
 /**
  * Dispara o e-mail de redefinição de senha do próprio Supabase. Usado pelo
  * botão "Reenviar" de cada linha e pelo caminho de conta existente acima.
+ *
+ * Sem `export` de propósito: neste arquivo todo export vira endpoint que
+ * qualquer pessoa logada pode chamar, e esta função manda e-mail pela chave
+ * pública, fora do alcance do RLS. Quem entra por fora é o `reenviarAcesso`,
+ * que confere o admin antes.
  */
-export async function reenviarSenha(email: string) {
+async function reenviarSenha(email: string) {
   const { error } = await clientIsolado().auth.resetPasswordForEmail(email, {
     redirectTo: `${APP_URL}/redefinir-senha`,
   });
@@ -96,12 +104,14 @@ export async function reenviarSenha(email: string) {
 }
 
 export async function reenviarAcesso(email: string) {
+  await exigirAdminNaAcao(await createClient());
   await reenviarSenha(email);
   return `Link para criar uma senha nova enviado para ${email}.`;
 }
 
 export async function revogarAcesso(id: string) {
   const supabase = await createClient();
+  await exigirAdminNaAcao(supabase);
   const { error } = await supabase
     .from("members")
     .update({ acesso_pago: false })
@@ -115,6 +125,7 @@ export async function revogarAcesso(id: string) {
 // Kirvano manda o bump no pedido; isto aqui é o controle na mão.
 export async function alternarLicencaRedes(id: string, ativar: boolean) {
   const supabase = await createClient();
+  await exigirAdminNaAcao(supabase);
   const { error } = await supabase
     .from("members")
     .update({ licenca_redes: ativar })

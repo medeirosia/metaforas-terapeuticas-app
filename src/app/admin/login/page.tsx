@@ -22,10 +22,21 @@ export default function LoginPage() {
       password: senha,
     });
 
+    if (error) {
+      setCarregando(false);
+      setErro("E-mail ou senha inválidos.");
+      return;
+    }
+
+    // Conta de comprador entra aqui e a senha confere — só não é dona do
+    // painel. Barrar agora, com o motivo escrito, evita o vaivém de entrar e
+    // ser devolvido para o catálogo sem entender o porquê.
+    const { data: admin } = await supabase.rpc("eh_admin");
     setCarregando(false);
 
-    if (error) {
-      setErro("E-mail ou senha inválidos.");
+    if (admin !== true) {
+      await supabase.auth.signOut();
+      setErro("Essa conta não tem acesso ao painel.");
       return;
     }
 

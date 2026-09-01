@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { exigirAdminNaAcao } from "@/lib/admin";
 import { slugify } from "@/lib/slug";
 
 export async function signOut() {
@@ -120,6 +121,7 @@ function lerCamposFormulario(formData: FormData) {
 
 export async function criarMetafora(formData: FormData) {
   const supabase = await createClient();
+  await exigirAdminNaAcao(supabase);
   const campos = lerCamposFormulario(formData);
 
   const categoriaResolvidaId = await resolverCategoriaId(
@@ -164,6 +166,7 @@ export async function criarMetafora(formData: FormData) {
 
 export async function atualizarMetafora(id: string, formData: FormData) {
   const supabase = await createClient();
+  await exigirAdminNaAcao(supabase);
   const campos = lerCamposFormulario(formData);
 
   const categoriaResolvidaId = await resolverCategoriaId(
@@ -199,6 +202,7 @@ export async function atualizarMetafora(id: string, formData: FormData) {
 
 export async function excluirMetafora(id: string) {
   const supabase = await createClient();
+  await exigirAdminNaAcao(supabase);
   const { error } = await supabase.from("metaforas").delete().eq("id", id);
   if (error) throw error;
 

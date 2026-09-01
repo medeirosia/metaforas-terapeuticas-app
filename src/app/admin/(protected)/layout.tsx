@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { exigirAdmin } from "@/lib/admin";
 import { signOut } from "@/app/admin/(protected)/actions";
 
 export default async function AdminProtectedLayout({
@@ -8,12 +7,7 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
+  const { user } = await exigirAdmin();
 
   return (
     <div className="min-h-screen bg-zinc-950">

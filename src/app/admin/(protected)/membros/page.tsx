@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
+import { exigirAdmin } from "@/lib/admin";
 import CriarMembroForm from "@/app/admin/(protected)/membros/CriarMembroForm";
 import RevogarButton from "@/app/admin/(protected)/membros/RevogarButton";
 import LicencaToggle from "@/app/admin/(protected)/membros/LicencaToggle";
@@ -10,23 +11,98 @@ import {
   revogarAcesso,
 } from "@/app/admin/(protected)/membros/actions";
 
-export default async function MembrosPage() {
-  const supabase = await createClient();
-  const { data: membros } = await supabase
+const POR_PAGINA = 50;
+
+export default async function MembrosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; p?: string }>;
+}) {
+  const { supabase } = await exigirAdmin();
+  const { q, p } = await searchParams;
+
+  const busca = (q ?? "").trim();
+  const pagina = Math.max(1, Number(p) || 1);
+  const inicio = (pagina - 1) * POR_PAGINA;
+
+  let consulta = supabase
     .from("members")
-    .select("id, email, acesso_pago, licenca_redes, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, email, acesso_pago, licenca_redes, created_at", {
+      count: "exact",
+    })
+    .order("created_at", { ascending: false })
+    .range(inicio, inicio + POR_PAGINA - 1);
+
+  if (busca) consulta = consulta.ilike("email", `%${busca}%`);
+
+  const [{ data: membros, count }, { count: totalGeral }, { count: totalAtivos }] =
+    await Promise.all([
+      consulta,
+      supabase.from("members").select("id", { count: "exact", head: true }),
+      supabase
+        .from("members")
+        .select("id", { count: "exact", head: true })
+        .eq("acesso_pago", true),
+    ]);
+
+  const encontrados = count ?? 0;
+  const ultimaPagina = Math.max(1, Math.ceil(encontrados / POR_PAGINA));
+  const linkPagina = (n: number) =>
+    `/admin/membros?${new URLSearchParams({
+      ...(busca ? { q: busca } : {}),
+      ...(n > 1 ? { p: String(n) } : {}),
+    })}`;
+
+  const inputClass =
+    "w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 focus:border-teal-400 focus:outline-none";
 
   return (
     <div>
       <h1 className="mb-2 text-xl font-bold text-zinc-50">Membros</h1>
       <p className="mb-6 text-sm text-zinc-400">
-        Envie acesso para quem você quiser, reenvie para quem perdeu a senha e revogue quando precisar.
+        {totalGeral ?? 0} no total, {totalAtivos ?? 0} com acesso ativo. Envie
+        acesso para quem você quiser, reenvie para quem perdeu a senha e revogue
+        quando precisar.
       </p>
 
       <CriarMembroForm action={enviarAcessoPorEmail} />
 
-      <div className="mt-8 overflow-hidden rounded-xl border border-white/10">
+      <form
+        method="get"
+        className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center"
+      >
+        <input
+          name="q"
+          type="search"
+          defaultValue={busca}
+          placeholder="Buscar por e-mail"
+          className={`${inputClass} sm:max-w-sm`}
+        />
+        <button
+          type="submit"
+          className="rounded-lg border border-zinc-700 px-5 py-2 text-sm font-medium text-zinc-200 hover:border-teal-400 hover:text-teal-300"
+        >
+          Buscar
+        </button>
+        {busca && (
+          <Link
+            href="/admin/membros"
+            className="text-sm text-zinc-400 hover:text-zinc-100"
+          >
+            Limpar
+          </Link>
+        )}
+      </form>
+
+      {busca && (
+        <p className="mt-3 text-sm text-zinc-400">
+          {encontrados === 0
+            ? `Ninguém com "${busca}" no e-mail.`
+            : `${encontrados} ${encontrados === 1 ? "resultado" : "resultados"} para "${busca}".`}
+        </p>
+      )}
+
+      <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
         <table className="w-full text-left text-sm">
           <thead className="bg-zinc-900 text-xs uppercase tracking-wide text-zinc-500">
             <tr>
@@ -78,13 +154,41 @@ export default async function MembrosPage() {
             {(membros ?? []).length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
-                  Nenhum comprador cadastrado ainda.
+                  {busca
+                    ? "Nenhum membro com esse e-mail."
+                    : "Nenhum comprador cadastrado ainda."}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      {ultimaPagina > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm">
+          <span className="text-zinc-500">
+            Página {pagina} de {ultimaPagina}
+          </span>
+          <div className="flex items-center gap-2">
+            {pagina > 1 && (
+              <Link
+                href={linkPagina(pagina - 1)}
+                className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-teal-400 hover:text-teal-300"
+              >
+                Anterior
+              </Link>
+            )}
+            {pagina < ultimaPagina && (
+              <Link
+                href={linkPagina(pagina + 1)}
+                className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-teal-400 hover:text-teal-300"
+              >
+                Próxima
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
