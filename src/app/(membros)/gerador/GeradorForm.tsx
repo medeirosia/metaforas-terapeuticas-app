@@ -1,14 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ABORDAGENS } from "@/lib/gerador-prompt";
 
 const TOTAL_ETAPAS = 3;
-const ABORDAGENS = ["TCC", "Psicanálise", "Gestalt", "Sistêmica", "ACT"];
 const MENSAGENS_IA = [
   "Analisando padrão emocional...",
   "Construindo metáfora analógica...",
   "Formatando mensagem para WhatsApp...",
+];
+
+// A vitrine da página de vendas continua sendo esta: texto fixo, sem chamar o
+// modelo. Quem ainda não comprou não gasta crédito da operação, e o exemplo
+// que ele vê é sempre o mesmo, já aprovado.
+const EXEMPLO_DEMO = [
+  "🌿 Às vezes, a mente constrói uma porta pesada onde antes havia apenas uma passagem.",
+  "E talvez hoje o trabalho não seja arrombar essa porta, mas perceber...",
+  "...que você pode aproximar a mão da maçaneta aos poucos, no seu tempo, testando segurança a cada respiração.",
+  "Durante a semana, observe qual pequena abertura já seria um gesto de coragem possível para você.",
 ];
 
 export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
@@ -18,25 +28,30 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
   const [abordagem, setAbordagem] = useState("TCC");
   const [gerando, setGerando] = useState(false);
   const [mensagemAtual, setMensagemAtual] = useState(0);
-  const [resultadoPronto, setResultadoPronto] = useState(false);
+  const [paragrafos, setParagrafos] = useState<string[] | null>(null);
+  const [risco, setRisco] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [restantes, setRestantes] = useState<number | null>(null);
+  const [copiado, setCopiado] = useState(false);
+  const cancelado = useRef(false);
 
+  const resultadoPronto = paragrafos !== null;
+
+  // As frases de progresso giram enquanto a resposta não chega. No demo elas
+  // são o próprio relógio; no acesso pago, só entretêm a espera real.
   useEffect(() => {
-    if (!gerando || resultadoPronto) return;
-
+    if (!gerando) return;
     const interval = window.setInterval(() => {
       setMensagemAtual((atual) => Math.min(MENSAGENS_IA.length - 1, atual + 1));
     }, 1500);
+    return () => window.clearInterval(interval);
+  }, [gerando]);
 
-    const timeout = window.setTimeout(() => {
-      setResultadoPronto(true);
-      setGerando(false);
-    }, 4600);
-
+  useEffect(() => {
     return () => {
-      window.clearInterval(interval);
-      window.clearTimeout(timeout);
+      cancelado.current = true;
     };
-  }, [gerando, resultadoPronto]);
+  }, []);
 
   const progresso = useMemo(() => {
     if (resultadoPronto) return 100;
@@ -52,10 +67,67 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
     setEtapa((e) => Math.max(1, e - 1));
   }
 
-  function gerar() {
-    setResultadoPronto(false);
+  async function gerar() {
+    setParagrafos(null);
+    setRisco(null);
+    setErro(null);
+    setCopiado(false);
     setMensagemAtual(0);
     setGerando(true);
+
+    if (isDemo) {
+      window.setTimeout(() => {
+        if (cancelado.current) return;
+        setParagrafos(EXEMPLO_DEMO);
+        setGerando(false);
+      }, 4600);
+      return;
+    }
+
+    try {
+      const resposta = await fetch("/api/gerador", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dor, abordagem }),
+      });
+      const dados = await resposta.json();
+
+      if (cancelado.current) return;
+
+      if (!resposta.ok) {
+        setErro(dados?.erro ?? "Não consegui gerar agora. Tente de novo.");
+        return;
+      }
+      if (dados.risco) {
+        setRisco(dados.texto);
+        return;
+      }
+
+      setParagrafos(
+        String(dados.texto)
+          .split(/\n{2,}/)
+          .map((p: string) => p.trim())
+          .filter(Boolean)
+      );
+      if (typeof dados.restantes === "number") setRestantes(dados.restantes);
+    } catch {
+      if (!cancelado.current) {
+        setErro("Não consegui falar com o gerador. Verifique sua conexão.");
+      }
+    } finally {
+      if (!cancelado.current) setGerando(false);
+    }
+  }
+
+  async function copiar() {
+    if (!paragrafos) return;
+    try {
+      await navigator.clipboard.writeText(paragrafos.join("\n\n"));
+      setCopiado(true);
+      window.setTimeout(() => setCopiado(false), 2500);
+    } catch {
+      setErro("Seu navegador bloqueou a cópia. Selecione o texto e copie na mão.");
+    }
   }
 
   const inputClass =
@@ -87,9 +159,13 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
               value={dor}
               onChange={(e) => setDor(e.target.value)}
               rows={5}
+              maxLength={600}
               placeholder="Ex: cliente que entende racionalmente, mas trava quando precisa se abrir..."
               className={inputClass}
             />
+            <p className="text-xs text-zinc-500">
+              Quanto mais concreta a cena, melhor a metáfora. {dor.length}/600
+            </p>
           </div>
         )}
 
@@ -132,6 +208,13 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
               O assistente vai montar uma metáfora breve para acompanhamento
               entre sessões, já no formato de mensagem de WhatsApp.
             </p>
+            {restantes !== null && (
+              <p className="text-xs text-zinc-500">
+                {restantes === 0
+                  ? "Você usou suas gerações de hoje."
+                  : `${restantes} ${restantes === 1 ? "geração restante" : "gerações restantes"} hoje.`}
+              </p>
+            )}
           </div>
         )}
 
@@ -149,7 +232,7 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
             <button
               type="button"
               onClick={proximaEtapa}
-              disabled={etapa === 1 && dor.trim().length < 3}
+              disabled={etapa === 1 && dor.trim().length < 10}
               className="rounded-full bg-emerald-400 px-6 py-2.5 text-sm font-black text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Continuar
@@ -161,7 +244,7 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
               disabled={gerando}
               className="rounded-full bg-emerald-400 px-6 py-2.5 text-sm font-black text-black shadow-[0_0_28px_rgba(52,211,153,0.35)] transition-transform hover:scale-[1.03] disabled:opacity-70"
             >
-              Gerar Metáfora
+              {gerando ? "Gerando..." : "Gerar Metáfora"}
             </button>
           )}
         </div>
@@ -188,30 +271,41 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
             </div>
           )}
 
-          {!gerando && !resultadoPronto && (
+          {!gerando && erro && (
+            <div className="mt-8 rounded-3xl border border-red-400/30 bg-red-500/5 p-6 text-sm leading-relaxed text-red-200">
+              {erro}
+            </div>
+          )}
+
+          {!gerando && risco && (
+            <div className="mt-8 rounded-3xl border border-amber-400/30 bg-amber-500/5 p-6 text-sm leading-relaxed text-amber-100">
+              <p className="mb-2 font-semibold">
+                Esse caso não é para mensagem entre sessões.
+              </p>
+              <p>{risco}</p>
+            </div>
+          )}
+
+          {!gerando && !resultadoPronto && !erro && !risco && (
             <div className="mt-8 rounded-3xl border border-white/10 bg-black/25 p-6 text-center text-sm leading-relaxed text-zinc-400">
               Preencha as etapas para ver uma mensagem clínica pronta em formato
               de WhatsApp.
             </div>
           )}
 
-          {resultadoPronto && (
+          {!gerando && resultadoPronto && (
             <div className="mt-6">
               <div className="relative overflow-hidden rounded-[28px] border border-emerald-400/20 bg-[#0b2b1c] p-5 text-sm leading-relaxed text-emerald-50">
-                <p>🌿 Às vezes, a mente constrói uma porta pesada onde antes havia apenas uma passagem.</p>
-                <p className="mt-3">
-                  E talvez hoje o trabalho não seja arrombar essa porta, mas perceber...
-                </p>
-                <div className={`${isDemo ? "blur-sm select-none" : ""}`}>
-                  <p className="mt-3">
-                    ...que você pode aproximar a mão da maçaneta aos poucos, no
-                    seu tempo, testando segurança a cada respiração.
+                {paragrafos.map((paragrafo, i) => (
+                  <p
+                    key={i}
+                    className={`${i > 0 ? "mt-3" : ""} ${
+                      isDemo && i >= 2 ? "select-none blur-sm" : ""
+                    }`}
+                  >
+                    {paragrafo}
                   </p>
-                  <p className="mt-3">
-                    Durante a semana, observe qual pequena abertura já seria um
-                    gesto de coragem possível para você.
-                  </p>
-                </div>
+                ))}
                 {isDemo && (
                   <div className="absolute inset-0 flex items-center justify-center bg-[#06130d]/45 p-4 backdrop-blur-[1px]">
                     <div className="rounded-3xl border border-emerald-300/30 bg-black/75 p-5 text-center shadow-2xl">
@@ -236,10 +330,11 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
 
               <button
                 type="button"
+                onClick={copiar}
                 disabled={isDemo}
-                className="mt-4 w-full rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-zinc-300 disabled:cursor-not-allowed disabled:opacity-45"
+                className="mt-4 w-full rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-zinc-300 transition-colors hover:border-emerald-400/50 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-45"
               >
-                📋 Copiar Mensagem Pronta
+                {copiado ? "✅ Copiado" : "📋 Copiar Mensagem Pronta"}
               </button>
             </div>
           )}
