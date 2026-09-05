@@ -140,9 +140,13 @@ export default function VideoModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metafora.slug]);
 
+  // O z-[80] fica acima do z-[70] da barra de navegação do rodapé no mobile.
+  // Com z-50 a barra passava por cima do modal e cobria justo a faixa onde
+  // fica o botão "Ver detalhes" — no desktop não há barra, por isso só o
+  // celular era afetado.
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -154,7 +158,10 @@ export default function VideoModal({
             className={`relative w-full bg-black ${
               exibirCtaPreview
                 ? "h-[calc(92dvh-2rem)] sm:h-auto sm:aspect-[9/16]"
-                : "aspect-[9/16]"
+                : // No celular o 9:16 puro comia 715px de uma tela de 812 e
+                  // empurrava a ficha inteira pra fora. Teto de 55dvh devolve
+                  // espaço pro título e pro "Ver detalhes" sem cortar o vídeo.
+                  "aspect-[9/16] max-h-[55dvh] sm:max-h-none"
             }`}
           >
             <button
@@ -168,7 +175,7 @@ export default function VideoModal({
             <video
               ref={videoRef}
               src={metafora.video_url ?? undefined}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain sm:object-cover"
               controls
               autoPlay
               playsInline
