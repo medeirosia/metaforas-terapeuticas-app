@@ -49,8 +49,11 @@ export async function POST(request: Request) {
   const dor = String(corpo.dor ?? "").trim().slice(0, LIMITE_DOR);
   const abordagem = String(corpo.abordagem ?? "").trim();
 
-  if (dor.length < 10) {
-    return erro("Descreva a situação com um pouco mais de detalhe.", 400);
+  // Mínimo de 3, não de 10: o antigo fez alguém digitar "pai" seguido de vinte
+  // e quatro pontos pra conseguir enviar. Tema curto agora passa, e quem
+  // resolve é o prompt, que escolhe uma cena concreta quando o pedido é vago.
+  if (dor.length < 3) {
+    return erro("Escreva ao menos a dor que você quer trabalhar.", 400);
   }
   if (!ABORDAGENS.includes(abordagem)) {
     return erro("Escolha uma das abordagens da lista.", 400);

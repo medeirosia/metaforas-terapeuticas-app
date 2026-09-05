@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import { ABORDAGENS } from "@/lib/gerador-prompt";
 
 const TOTAL_ETAPAS = 3;
+const EXEMPLOS_DE_DOR = [
+  "Cliente que entende tudo racionalmente e trava na hora de sentir",
+  "Paciente que adia exame há meses e carrega o pedido na bolsa",
+  "Mãe que cuida de todo mundo e não aceita ajuda de ninguém",
+];
+
 const MENSAGENS_IA = [
   "Analisando padrão emocional...",
   "Construindo metáfora analógica...",
@@ -155,17 +161,37 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
             <h2 className="font-serif text-2xl italic text-zinc-50">
               Qual dor ou situação você quer trabalhar?
             </h2>
+            <p className="-mt-1 text-sm leading-relaxed text-zinc-400">
+              Descreva o seu paciente como você contaria pra um colega. Um tema
+              solto também funciona, mas quanto mais concreta a cena, mais a
+              metáfora vai parecer feita pra ele.
+            </p>
             <textarea
               value={dor}
               onChange={(e) => setDor(e.target.value)}
               rows={5}
               maxLength={600}
-              placeholder="Ex: cliente que entende racionalmente, mas trava quando precisa se abrir..."
+              placeholder="Ex: paciente que fala de vários assuntos ao mesmo tempo pra não chegar no que dói"
               className={inputClass}
             />
-            <p className="text-xs text-zinc-500">
-              Quanto mais concreta a cena, melhor a metáfora. {dor.length}/600
-            </p>
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300/70">
+                Ou comece por um destes
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {EXEMPLOS_DE_DOR.map((exemplo) => (
+                  <button
+                    key={exemplo}
+                    type="button"
+                    onClick={() => setDor(exemplo)}
+                    className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-left text-xs text-zinc-400 transition-colors hover:border-emerald-400/50 hover:text-emerald-200"
+                  >
+                    {exemplo}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p className="text-xs text-zinc-500">{dor.length}/600</p>
           </div>
         )}
 
@@ -232,7 +258,7 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
             <button
               type="button"
               onClick={proximaEtapa}
-              disabled={etapa === 1 && dor.trim().length < 10}
+              disabled={etapa === 1 && dor.trim().length < 3}
               className="rounded-full bg-emerald-400 px-6 py-2.5 text-sm font-black text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Continuar
