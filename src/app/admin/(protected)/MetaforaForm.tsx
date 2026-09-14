@@ -89,7 +89,7 @@ export default function MetaforaForm({
         <div className="flex items-end gap-4">
           <label className="flex items-center gap-2 text-sm text-zinc-300">
             <input name="destaque" type="checkbox" defaultChecked={inicial?.destaque} />
-            Destaque
+            Vídeos novos da semana
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-300">
             <input name="publicado" type="checkbox" defaultChecked={inicial?.publicado ?? true} />

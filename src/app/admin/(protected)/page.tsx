@@ -59,7 +59,7 @@ export default async function AdminDashboard() {
                   {metafora.titulo}
                   {metafora.destaque && (
                     <span className="ml-2 rounded-full bg-teal-400/10 px-2 py-0.5 text-xs font-medium text-teal-300">
-                      Destaque
+                      Novo da semana
                     </span>
                   )}
                 </td>

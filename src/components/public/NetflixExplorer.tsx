@@ -86,8 +86,15 @@ export default function NetflixExplorer({
     return mapa;
   }, [todas]);
 
+  // A fileira do topo é "Vídeos novos da semana": quem liga é o campo destaque
+  // no admin, e o mais recente entra primeiro. O vídeo continua também na
+  // fileira da categoria dele.
   const destaques = useMemo(
-    () => todas.filter((item) => item.metafora.destaque).map((i) => i.metafora),
+    () =>
+      todas
+        .filter((item) => item.metafora.destaque)
+        .map((i) => i.metafora)
+        .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? "")),
     [todas]
   );
 
@@ -208,7 +215,7 @@ export default function NetflixExplorer({
           <div className="animate-reveal flex flex-col gap-8">
             {destaques.length > 0 && (
               <CategoriaRow
-                titulo="Metáfora em destaque"
+                titulo="Vídeos novos da semana"
                 metaforas={destaques}
                 onSelect={handleSelect}
                 progressos={progressoPorSlug}
