@@ -35,13 +35,14 @@ export default function PosterCard({
   bloqueado?: boolean;
   compacto?: boolean;
 }) {
+  // A fileira de novos usa o mesmo tamanho das outras (pedido do Kenneth); o
+  // que diferencia o vídeo novo é a etiqueta, em qualquer fileira onde ele apareça.
   const largura = preencherLargura
     ? "w-full"
     : compacto
       ? "w-28 sm:w-32 md:w-36"
-      : destaque
-      ? "w-48 sm:w-56 md:w-64"
       : "w-32 sm:w-40 md:w-44";
+  const novo = destaque || metafora.destaque;
 
   const emBreve = metafora.status === "em_breve";
   const exibirBloqueioVisual = emBreve && !bloqueado;
@@ -91,6 +92,12 @@ export default function PosterCard({
             {exibirBloqueioVisual ? <LockIcon className="h-5 w-5" /> : <PlayIcon />}
           </span>
         </div>
+
+        {novo && (
+          <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-gold px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-black shadow-md">
+            Novo
+          </span>
+        )}
 
         {typeof progresso === "number" && !exibirBloqueioVisual && (
           <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20">
