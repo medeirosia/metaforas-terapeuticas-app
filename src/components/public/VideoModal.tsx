@@ -101,7 +101,6 @@ export default function VideoModal({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoFinalizado, setVideoFinalizado] = useState(false);
-  const [detalhesAbertos, setDetalhesAbertos] = useState(false);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -141,9 +140,8 @@ export default function VideoModal({
   }, [metafora.slug]);
 
   // O z-[80] fica acima do z-[70] da barra de navegação do rodapé no mobile.
-  // Com z-50 a barra passava por cima do modal e cobria justo a faixa onde
-  // fica o botão "Ver detalhes" — no desktop não há barra, por isso só o
-  // celular era afetado.
+  // Com z-50 a barra passava por cima do modal e cobria a parte de baixo
+  // dele. No desktop não há barra, por isso só o celular era afetado.
   return (
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
@@ -160,7 +158,7 @@ export default function VideoModal({
                 ? "h-[calc(92dvh-2rem)] sm:h-auto sm:aspect-[9/16]"
                 : // No celular o 9:16 puro comia 715px de uma tela de 812 e
                   // empurrava a ficha inteira pra fora. Teto de 55dvh devolve
-                  // espaço pro título e pro "Ver detalhes" sem cortar o vídeo.
+                  // espaço pro título e pra ficha sem cortar o vídeo.
                   "aspect-[9/16] max-h-[55dvh] sm:max-h-none"
             }`}
           >
@@ -182,67 +180,6 @@ export default function VideoModal({
               onPlay={() => setVideoFinalizado(false)}
             />
             {!exibirCtaPreview && <MarcaDaguaAluno email={emailAluno} />}
-            {!exibirCtaPreview && (
-              // Um de cada lado na mesma linha; altura livre da barra de
-              // controles do player (que ocupa o rodape do video).
-              <div className="absolute bottom-28 left-4 z-20 sm:bottom-16">
-                <a
-                  // Com licença de uso nas redes, baixa a versão limpa (sem
-                  // logo) pela rota que confere a licença e assina o link.
-                  //
-                  // Quem tem licença vê um botão ESCRITO. O ícone mudo fazia
-                  // o comprador salvar o vídeo pelo player e levar o arquivo
-                  // com logo, achando que a licença não tinha funcionado.
-                  href={
-                    licencaRedes
-                      ? `/api/baixar/${metafora.slug}`
-                      : metafora.video_url ?? "#"
-                  }
-                  download={`${metafora.slug}.mp4`}
-                  aria-label={
-                    licencaRedes
-                      ? "Baixar esta metáfora sem logo"
-                      : "Baixar esta metáfora"
-                  }
-                  className={
-                    licencaRedes
-                      ? "flex h-11 items-center gap-2 rounded-full border border-gold/55 bg-black/70 px-4 text-xs font-semibold text-gold-light shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
-                      : "flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
-                  }
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 shrink-0"
-                  >
-                    <path d="M12 3v12" />
-                    <path d="m7 11 5 5 5-5" />
-                    <path d="M4 20h16" />
-                  </svg>
-                  {licencaRedes && (
-                    <span className="whitespace-nowrap">Baixar sem logo</span>
-                  )}
-                </a>
-              </div>
-            )}
-            {!exibirCtaPreview && (
-              <div className="absolute bottom-28 right-4 z-20 sm:bottom-16">
-                <ShareButtons
-                  titulo={metafora.titulo}
-                  videoUrl={metafora.video_url ?? ""}
-                  slug={metafora.slug}
-                  mensagem={criarMensagemCompartilhar(
-                    metafora.titulo,
-                    metafora.resumo ?? ""
-                  )}
-                  compacto
-                />
-              </div>
-            )}
             {exibirCtaPreview && (
               <div className="absolute inset-x-3 bottom-3 z-20 rounded-3xl border border-emerald-400/35 bg-[#07100c]/92 p-3 text-center shadow-[0_-18px_48px_rgba(16,185,129,0.18),0_0_34px_rgba(52,211,153,0.2)] backdrop-blur-md sm:inset-x-4 sm:bottom-4 sm:p-4">
                 {videoFinalizado && (
@@ -269,22 +206,72 @@ export default function VideoModal({
               </div>
             )}
           </div>
+          {!exibirCtaPreview && (
+            // Baixar e WhatsApp numa faixa própria embaixo do vídeo. Antes
+            // ficavam por cima da imagem, no meio da tela e em cima da
+            // legenda, e o Kenneth pediu pra tirar dali.
+            <div className="flex items-center justify-between gap-3 border-t border-white/10 bg-[#0a0a0a] px-4 py-3">
+              <a
+                // Com licença de uso nas redes, baixa a versão limpa (sem
+                // logo) pela rota que confere a licença e assina o link.
+                //
+                // Quem tem licença vê um botão ESCRITO. O ícone mudo fazia
+                // o comprador salvar o vídeo pelo player e levar o arquivo
+                // com logo, achando que a licença não tinha funcionado.
+                href={
+                  licencaRedes
+                    ? `/api/baixar/${metafora.slug}`
+                    : metafora.video_url ?? "#"
+                }
+                download={`${metafora.slug}.mp4`}
+                aria-label={
+                  licencaRedes
+                    ? "Baixar esta metáfora sem logo"
+                    : "Baixar esta metáfora"
+                }
+                className={
+                  licencaRedes
+                    ? "flex h-11 items-center gap-2 rounded-full border border-gold/55 bg-black/70 px-4 text-xs font-semibold text-gold-light shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
+                    : "flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-[0_0_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:border-gold hover:text-gold-hover"
+                }
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 shrink-0"
+                >
+                  <path d="M12 3v12" />
+                  <path d="m7 11 5 5 5-5" />
+                  <path d="M4 20h16" />
+                </svg>
+                {licencaRedes && (
+                  <span className="whitespace-nowrap">Baixar sem logo</span>
+                )}
+              </a>
+              <ShareButtons
+                titulo={metafora.titulo}
+                videoUrl={metafora.video_url ?? ""}
+                slug={metafora.slug}
+                mensagem={criarMensagemCompartilhar(
+                  metafora.titulo,
+                  metafora.resumo ?? ""
+                )}
+                compacto
+              />
+            </div>
+          )}
         </div>
 
         <div
-          className={`relative z-10 flex flex-1 flex-col gap-3 overflow-y-auto border-t border-white/10 bg-[#0a0a0a]/95 font-sans font-light backdrop-blur-xl transition-[max-height] duration-300 sm:inset-auto sm:z-auto sm:max-h-none sm:rounded-none sm:border-l sm:border-t-0 sm:p-6 sm:shadow-none ${
-            detalhesAbertos ? "max-h-[60vh] p-5" : "max-h-28 p-4"
-          }`}
+          // No celular a ficha fica aberta, embaixo do vídeo, e quem rola é o
+          // modal inteiro. A gaveta de 7rem com rolagem própria cortava o
+          // título e deixava a ficha difícil de ler.
+          className="relative z-10 flex flex-1 flex-col gap-3 border-t border-white/10 bg-[#0a0a0a]/95 p-5 font-sans font-light backdrop-blur-xl sm:overflow-y-auto sm:border-l sm:border-t-0 sm:p-6"
         >
-          <button
-            type="button"
-            onClick={() => setDetalhesAbertos((aberto) => !aberto)}
-            aria-expanded={detalhesAbertos}
-            className="flex flex-col items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-gold-light sm:hidden"
-          >
-            <span className="h-1.5 w-12 rounded-full bg-white/25" />
-            {detalhesAbertos ? "Ocultar detalhes" : "Ver detalhes"}
-          </button>
           <div className="flex items-start justify-between gap-4">
             <div>
               <span className="text-xs font-semibold uppercase tracking-widest text-gold-light">
@@ -304,7 +291,7 @@ export default function VideoModal({
             </button>
           </div>
 
-          <div className={`${detalhesAbertos ? "block" : "hidden"} sm:block`}>
+          <div>
             <p className="text-sm leading-relaxed text-zinc-300">
               {metafora.descricao ?? ""}
             </p>
