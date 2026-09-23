@@ -91,6 +91,7 @@ function lerCamposFormulario(formData: FormData) {
   const dores = parseDores(String(formData.get("dores") ?? ""));
   const ficha = lerFichaClinica(formData);
   const destaque = formData.get("destaque") === "on";
+  const maisVistos = formData.get("mais_vistos") === "on";
   const publicado = formData.get("publicado") === "on";
   const ordem = Number(formData.get("ordem") ?? 0);
 
@@ -114,6 +115,7 @@ function lerCamposFormulario(formData: FormData) {
     dores,
     ficha,
     destaque,
+    maisVistos,
     publicado,
     ordem,
   };
@@ -154,6 +156,7 @@ export async function criarMetafora(formData: FormData) {
     dores: campos.dores,
     ...campos.ficha,
     destaque: campos.destaque,
+    mais_vistos: campos.maisVistos,
     publicado: campos.publicado,
     ordem: campos.ordem,
   });
@@ -188,6 +191,7 @@ export async function atualizarMetafora(id: string, formData: FormData) {
       dores: campos.dores,
       ...campos.ficha,
       destaque: campos.destaque,
+      mais_vistos: campos.maisVistos,
       publicado: campos.publicado,
       ordem: campos.ordem,
       updated_at: new Date().toISOString(),

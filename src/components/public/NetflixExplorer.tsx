@@ -98,6 +98,19 @@ export default function NetflixExplorer({
     [todas]
   );
 
+  // "Mais vistos" é curadoria, não contador: quem liga é o campo mais_vistos
+  // no admin, e o vídeo continua também na fileira da categoria dele. Precisa
+  // reordenar por `ordem`: `todas` vem agrupado por categoria, então sem isso
+  // a fileira sai na ordem em que as categorias aparecem, não na do acervo.
+  const maisVistos = useMemo(
+    () =>
+      todas
+        .filter((item) => item.metafora.mais_vistos)
+        .map((i) => i.metafora)
+        .sort((a, b) => a.ordem - b.ordem),
+    [todas]
+  );
+
   const continuarAssistindo = useMemo(() => {
     const entradas = Object.entries(progressos)
       .filter(([, v]) => v.progresso >= 3 && v.progresso < 95)
@@ -228,6 +241,16 @@ export default function NetflixExplorer({
               <CategoriaRow
                 titulo="Continuar assistindo"
                 metaforas={continuarAssistindo}
+                onSelect={handleSelect}
+                progressos={progressoPorSlug}
+                isDemo={isDemo}
+              />
+            )}
+
+            {maisVistos.length > 0 && (
+              <CategoriaRow
+                titulo="Mais vistos"
+                metaforas={maisVistos}
                 onSelect={handleSelect}
                 progressos={progressoPorSlug}
                 isDemo={isDemo}

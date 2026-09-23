@@ -26,6 +26,9 @@ export type Metafora = {
   ficha_ponte: string | null;
   status: StatusMetafora;
   destaque: boolean;
+  // Fileira "Mais vistos": curadoria do Kenneth no admin, independente do
+  // destaque. O video continua na fileira da categoria dele.
+  mais_vistos: boolean;
   publicado: boolean;
   ordem: number;
   created_at: string;

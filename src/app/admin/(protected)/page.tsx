@@ -14,7 +14,7 @@ export default async function AdminDashboard() {
   const { data: metaforas } = await supabase
     .from("metaforas")
     .select(
-      "id, titulo, categoria_id, status, destaque, publicado, ordem, created_at"
+      "id, titulo, categoria_id, status, destaque, mais_vistos, publicado, ordem, created_at"
     )
     .order("ordem", { ascending: true });
 
@@ -60,6 +60,11 @@ export default async function AdminDashboard() {
                   {metafora.destaque && (
                     <span className="ml-2 rounded-full bg-teal-400/10 px-2 py-0.5 text-xs font-medium text-teal-300">
                       Novo da semana
+                    </span>
+                  )}
+                  {metafora.mais_vistos && (
+                    <span className="ml-2 rounded-full bg-gold/10 px-2 py-0.5 text-xs font-medium text-gold">
+                      Mais vistos
                     </span>
                   )}
                 </td>

@@ -21,6 +21,7 @@ type Inicial = {
   ficha_perguntas?: string[];
   ficha_ponte?: string | null;
   destaque?: boolean;
+  mais_vistos?: boolean;
   publicado?: boolean;
   ordem?: number;
 };
@@ -90,6 +91,10 @@ export default function MetaforaForm({
           <label className="flex items-center gap-2 text-sm text-zinc-300">
             <input name="destaque" type="checkbox" defaultChecked={inicial?.destaque} />
             Vídeos novos da semana
+          </label>
+          <label className="flex items-center gap-2 text-sm text-zinc-300">
+            <input name="mais_vistos" type="checkbox" defaultChecked={inicial?.mais_vistos} />
+            Mais vistos
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-300">
             <input name="publicado" type="checkbox" defaultChecked={inicial?.publicado ?? true} />
