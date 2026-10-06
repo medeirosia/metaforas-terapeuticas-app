@@ -23,12 +23,17 @@ function Spinner({ className = "h-5 w-5" }: { className?: string }) {
 export default function ShareButtons({
   titulo,
   videoUrl,
+  arquivoUrl,
   slug,
   mensagem,
   compacto = false,
 }: {
   titulo: string;
   videoUrl: string;
+  // O arquivo que vai anexado no WhatsApp. Quem tem licença de uso nas redes
+  // manda a versão limpa (/api/baixar); sem isso o botão anexava o arquivo
+  // público, com logo, e o comprador da licença achava que ela não valia.
+  arquivoUrl?: string;
   slug: string;
   mensagem: string;
   compacto?: boolean;
@@ -73,14 +78,15 @@ export default function ShareButtons({
       "canShare" in navigator &&
       navigator.canShare({ files: [new File([""], "t.mp4", { type: "video/mp4" })] });
 
-    if (!suportaArquivo || !videoUrl) {
+    const fonte = arquivoUrl || videoUrl;
+    if (!suportaArquivo || !fonte) {
       window.open(whatsappUrl, "_blank", "noreferrer");
       return;
     }
 
     setPreparando(true);
     try {
-      const resposta = await fetch(videoUrl);
+      const resposta = await fetch(fonte);
       if (!resposta.ok) throw new Error(`download falhou: ${resposta.status}`);
       const blob = await resposta.blob();
       const arquivo = new File([blob], `${slug}.mp4`, { type: "video/mp4" });

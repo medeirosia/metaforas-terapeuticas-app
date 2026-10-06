@@ -101,6 +101,11 @@ export default function VideoModal({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoFinalizado, setVideoFinalizado] = useState(false);
+  // O que vai anexado no "Enviar no WhatsApp": a mesma regra do botão de
+  // baixar. Com licença, a versão limpa; sem licença, o arquivo com logo.
+  const arquivoWhatsApp = licencaRedes
+    ? `/api/baixar/${metafora.slug}`
+    : metafora.video_url ?? "";
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -255,6 +260,7 @@ export default function VideoModal({
               <ShareButtons
                 titulo={metafora.titulo}
                 videoUrl={metafora.video_url ?? ""}
+                arquivoUrl={arquivoWhatsApp}
                 slug={metafora.slug}
                 mensagem={criarMensagemCompartilhar(
                   metafora.titulo,
@@ -318,6 +324,7 @@ export default function VideoModal({
               <ShareButtons
                 titulo={metafora.titulo}
                 videoUrl={metafora.video_url ?? ""}
+                arquivoUrl={arquivoWhatsApp}
                 slug={metafora.slug}
                 mensagem={criarMensagemCompartilhar(
                   metafora.titulo,
