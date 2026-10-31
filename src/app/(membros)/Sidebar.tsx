@@ -50,6 +50,16 @@ export default function Sidebar({
         <span className="min-w-0 truncate text-lg font-semibold text-zinc-100">
           {itemAtual?.label ?? "Metáforas"}
         </span>
+
+        {/* No celular o botão de entrar da barra lateral não aparece; sem este, quem comprou não acha onde entrar. */}
+        {!userEmail && (
+          <Link
+            href="/login"
+            className="absolute right-4 rounded-full bg-gold px-3.5 py-2 text-xs font-semibold text-black transition-opacity hover:opacity-90"
+          >
+            Entrar
+          </Link>
+        )}
       </header>
 
       <nav

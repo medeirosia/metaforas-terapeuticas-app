@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ABORDAGENS } from "@/lib/gerador-prompt";
 
@@ -349,6 +350,12 @@ export default function GeradorForm({ isDemo }: { isDemo: boolean }) {
                       >
                         Desbloquear Gerador + Biblioteca por R$ 67
                       </button>
+                      <Link
+                        href="/login"
+                        className="mt-3 block text-xs font-semibold text-zinc-200 underline underline-offset-4 hover:text-emerald-300"
+                      >
+                        Já sou aluno — Entrar
+                      </Link>
                     </div>
                   </div>
                 )}

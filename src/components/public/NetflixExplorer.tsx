@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CategoriaRow from "@/components/public/CategoriaRow";
 import PosterCard from "@/components/public/PosterCard";
@@ -330,6 +331,13 @@ function PaywallModal({
         >
           Desbloquear Biblioteca por R$ 67
         </button>
+        {/* Quem já comprou e abriu o site sem entrar cai aqui achando que perdeu o acesso. */}
+        <Link
+          href="/login"
+          className="mt-3 block w-full rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-zinc-100 transition-colors hover:border-gold/50 hover:text-gold-light"
+        >
+          Já sou aluno — Entrar
+        </Link>
         <button
           type="button"
           onClick={onClose}
