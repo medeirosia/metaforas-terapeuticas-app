@@ -223,10 +223,17 @@ export default function VideoModal({
                 // Quem tem licença vê um botão ESCRITO. O ícone mudo fazia
                 // o comprador salvar o vídeo pelo player e levar o arquivo
                 // com logo, achando que a licença não tinha funcionado.
+                //
+                // Sem licença o arquivo está em outro domínio (Supabase) e o
+                // navegador ignora o atributo download: no iPhone o vídeo só
+                // abria em tela cheia. O ?download= faz o Storage responder
+                // como anexo, e aí baixa.
                 href={
                   licencaRedes
                     ? `/api/baixar/${metafora.slug}`
-                    : metafora.video_url ?? "#"
+                    : metafora.video_url
+                      ? `${metafora.video_url}?download=${metafora.slug}.mp4`
+                      : "#"
                 }
                 download={`${metafora.slug}.mp4`}
                 aria-label={
