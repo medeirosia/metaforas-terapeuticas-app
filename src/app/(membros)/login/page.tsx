@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginMembroPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
@@ -14,6 +12,17 @@ export default function LoginMembroPage() {
   // trancado para sempre e vira chamado manual.
   const [recuperando, setRecuperando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
+
+  // O Safari do iPhone restaura esta tela do bfcache ao tocar em Voltar, com o
+  // estado congelado: sem isso o botao ficaria preso em "Entrando...".
+  useEffect(() => {
+    function aoMostrarPagina(event: PageTransitionEvent) {
+      if (event.persisted) setCarregando(false);
+    }
+
+    window.addEventListener("pageshow", aoMostrarPagina);
+    return () => window.removeEventListener("pageshow", aoMostrarPagina);
+  }, []);
 
   async function recuperarSenha() {
     setErro(null);
@@ -47,15 +56,16 @@ export default function LoginMembroPage() {
       password: senha,
     });
 
-    setCarregando(false);
-
     if (error) {
+      setCarregando(false);
       setErro("E-mail ou senha inválidos.");
       return;
     }
 
-    router.push("/metaforas");
-    router.refresh();
+    // Pagina inteira: a biblioteca abre com os cookies da sessao nova, sem
+    // aproveitar o que o Sidebar pre-carregou enquanto a pessoa estava deslogada.
+    // O botao segue em "Entrando..." ate a pagina trocar.
+    window.location.assign("/metaforas");
   }
 
   return (
